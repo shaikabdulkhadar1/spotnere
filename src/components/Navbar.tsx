@@ -1,7 +1,7 @@
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { MapPin } from "lucide-react";
+// Replaced icon with logo image from public folder
 
 const Navbar = () => {
   const [scrolled, setScrolled] = useState(false);
@@ -26,7 +26,11 @@ const Navbar = () => {
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between">
           <Link to="/" className="flex items-center gap-2 group">
-            <MapPin className="w-6 h-6 text-primary transition-transform group-hover:scale-110" />
+            <img
+              src="/logo.png"
+              alt="Spotnere logo"
+              className="w-6 h-6 object-contain transition-transform group-hover:scale-110"
+            />
             <span className="text-2xl font-serif font-bold text-foreground">
               Spotnere
             </span>

@@ -2,7 +2,12 @@ import type { Config } from "tailwindcss";
 
 export default {
   darkMode: ["class"],
-  content: ["./pages/**/*.{ts,tsx}", "./components/**/*.{ts,tsx}", "./app/**/*.{ts,tsx}", "./src/**/*.{ts,tsx}"],
+  content: [
+    "./pages/**/*.{ts,tsx}",
+    "./components/**/*.{ts,tsx}",
+    "./app/**/*.{ts,tsx}",
+    "./src/**/*.{ts,tsx}",
+  ],
   prefix: "",
   theme: {
     container: {
@@ -14,8 +19,18 @@ export default {
     },
     extend: {
       fontFamily: {
-        sans: ['Inter', 'ui-sans-serif', 'system-ui'],
-        serif: ['Playfair Display', 'ui-serif', 'Georgia'],
+        sans: [
+          "SF Pro Text",
+          "-apple-system",
+          "BlinkMacSystemFont",
+          "Segoe UI",
+          "system-ui",
+          "ui-sans-serif",
+          "Helvetica Neue",
+          "Arial",
+          "sans-serif",
+        ],
+        serif: ['"Lobster Two"', "ui-serif", "Georgia", "serif"],
       },
       colors: {
         border: "hsl(var(--border))",
@@ -84,9 +99,16 @@ export default {
           from: { opacity: "0" },
           to: { opacity: "1" },
         },
-        "float": {
+        float: {
           "0%, 100%": { transform: "translateY(0)" },
           "50%": { transform: "translateY(-10px)" },
+        },
+        blob: {
+          "0%": { transform: "translate(0, 0) scale(1)" },
+          "25%": { transform: "translate(12%, -6%) scale(1.04)" },
+          "50%": { transform: "translate(-8%, 10%) scale(0.97)" },
+          "75%": { transform: "translate(10%, 6%) scale(1.06)" },
+          "100%": { transform: "translate(0, 0) scale(1)" },
         },
       },
       animation: {
@@ -94,7 +116,8 @@ export default {
         "accordion-up": "accordion-up 0.2s ease-out",
         "fade-up": "fade-up 0.5s ease-out",
         "fade-in": "fade-in 0.3s ease-out",
-        "float": "float 3s ease-in-out infinite",
+        float: "float 3s ease-in-out infinite",
+        blob: "blob 12s ease-in-out infinite",
       },
     },
   },
