@@ -20,7 +20,7 @@ export default {
     extend: {
       fontFamily: {
         sans: [
-          "SF Pro Text",
+          "Parkinsans",
           "-apple-system",
           "BlinkMacSystemFont",
           "Segoe UI",
@@ -30,7 +30,7 @@ export default {
           "Arial",
           "sans-serif",
         ],
-        serif: ['"Lobster Two"', "ui-serif", "Georgia", "serif"],
+        serif: ['Lobster Two"', "ui-serif", "Georgia", "serif"],
       },
       colors: {
         border: "hsl(var(--border))",
@@ -50,10 +50,7 @@ export default {
           DEFAULT: "hsl(var(--destructive))",
           foreground: "hsl(var(--destructive-foreground))",
         },
-        muted: {
-          DEFAULT: "hsl(var(--muted))",
-          foreground: "hsl(var(--muted-foreground))",
-        },
+        muted: "hsl(var(--muted))",
         accent: {
           DEFAULT: "hsl(var(--accent))",
           foreground: "hsl(var(--accent-foreground))",
@@ -76,6 +73,9 @@ export default {
           border: "hsl(var(--sidebar-border))",
           ring: "hsl(var(--sidebar-ring))",
         },
+        brand: "hsl(var(--brand))",
+        "brand-foreground": "hsl(var(--brand-foreground))",
+        "muted-foreground": "hsl(var(--muted-foreground))",
       },
       borderRadius: {
         lg: "var(--radius)",
@@ -84,31 +84,71 @@ export default {
       },
       keyframes: {
         "accordion-down": {
-          from: { height: "0" },
-          to: { height: "var(--radix-accordion-content-height)" },
+          from: {
+            height: "0",
+          },
+          to: {
+            height: "var(--radix-accordion-content-height)",
+          },
         },
         "accordion-up": {
-          from: { height: "var(--radix-accordion-content-height)" },
-          to: { height: "0" },
+          from: {
+            height: "var(--radix-accordion-content-height)",
+          },
+          to: {
+            height: "0",
+          },
         },
         "fade-up": {
-          from: { opacity: "0", transform: "translateY(20px)" },
-          to: { opacity: "1", transform: "translateY(0)" },
+          from: {
+            opacity: "0",
+            transform: "translateY(20px)",
+          },
+          to: {
+            opacity: "1",
+            transform: "translateY(0)",
+          },
         },
         "fade-in": {
-          from: { opacity: "0" },
-          to: { opacity: "1" },
+          from: {
+            opacity: "0",
+          },
+          to: {
+            opacity: "1",
+          },
         },
         float: {
-          "0%, 100%": { transform: "translateY(0)" },
-          "50%": { transform: "translateY(-10px)" },
+          "0%, 100%": {
+            transform: "translateY(0)",
+          },
+          "50%": {
+            transform: "translateY(-10px)",
+          },
         },
         blob: {
-          "0%": { transform: "translate(0, 0) scale(1)" },
-          "25%": { transform: "translate(12%, -6%) scale(1.04)" },
-          "50%": { transform: "translate(-8%, 10%) scale(0.97)" },
-          "75%": { transform: "translate(10%, 6%) scale(1.06)" },
-          "100%": { transform: "translate(0, 0) scale(1)" },
+          "0%": {
+            transform: "translate(0, 0) scale(1)",
+          },
+          "25%": {
+            transform: "translate(12%, -6%) scale(1.04)",
+          },
+          "50%": {
+            transform: "translate(-8%, 10%) scale(0.97)",
+          },
+          "75%": {
+            transform: "translate(10%, 6%) scale(1.06)",
+          },
+          "100%": {
+            transform: "translate(0, 0) scale(1)",
+          },
+        },
+        marquee: {
+          from: {
+            transform: "translateX(0)",
+          },
+          to: {
+            transform: "translateX(calc(-50% - var(--gap)))",
+          },
         },
       },
       animation: {
@@ -118,6 +158,10 @@ export default {
         "fade-in": "fade-in 0.3s ease-out",
         float: "float 3s ease-in-out infinite",
         blob: "blob 12s ease-in-out infinite",
+        marquee: "marquee var(--duration) linear infinite",
+      },
+      maxWidth: {
+        container: "1280px",
       },
     },
   },

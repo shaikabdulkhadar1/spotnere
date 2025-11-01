@@ -2,35 +2,38 @@ import React from "react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import GlassCard from "@/components/GlassCard";
 import PlaceCard from "@/components/PlaceCard";
 import { samplePlaces } from "@/data/places";
 import {
-  Search,
-  Map,
-  Filter,
-  Navigation,
+  Sailboat,
   Coffee,
+  Waves,
   Trees,
+  Sparkle,
+  Wine,
+  Gem,
+  BadgePlus,
   Palette,
+  Utensils,
+  Volleyball,
   Users,
   Music,
   Wallet,
   TrendingUp,
-  BarChart3,
-  MapPin,
-  Star,
+  PawPrint,
+  Landmark,
+  Film,
+  Building,
+  ArrowUpRight,
+  Pin,
 } from "lucide-react";
 import { AnimatedTestimonialGrid } from "@/components/ui/testimonial-2";
+import { HowItWorks } from "@/components/ui/how-it-works";
+import { StatCard } from "@/components/ui/card-10";
+import { TestimonialsSection } from "@/components/blocks/testimonials-with-marquee";
 
 const defaultProps = {
   gradientColors: {
@@ -40,7 +43,7 @@ const defaultProps = {
 };
 
 // --- SAMPLE DATA ---
-const testimonials = [
+const floatingImages = [
   {
     imgSrc:
       "https://images.unsplash.com/photo-1560250097-0b93528c311a?q=80&w=300",
@@ -103,6 +106,72 @@ const testimonials = [
   },
 ];
 
+const testimonials = [
+  {
+    author: {
+      name: "Emma Thompson",
+      avatar:
+        "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=150&h=150&fit=crop&crop=face",
+    },
+    text: "Spotnere helped me rediscover my own city — I found hidden cafés and quiet reading spots I’d never noticed before.",
+    href: "",
+  },
+  {
+    author: {
+      name: "Lucas Hernández",
+      avatar:
+        "https://images.unsplash.com/photo-1603415526960-f7e0328e3d4b?w=150&h=150&fit=crop&crop=face",
+    },
+    text: "The 'Trending Near Me' section is a game changer. I’ve found so many local gems just by exploring casually on weekends.",
+    href: "",
+  },
+  {
+    author: {
+      name: "Aisha Patel",
+      avatar:
+        "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=150&h=150&fit=crop&crop=face",
+    },
+    text: "I love how simple and beautiful the interface is. Searching for places feels natural, and every suggestion fits my mood perfectly.",
+    href: "",
+  },
+  {
+    author: {
+      name: "Daniel Okafor",
+      avatar:
+        "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150&h=150&fit=crop&crop=face",
+    },
+    text: "As a frequent traveler, I rely on Spotnere to discover unique spots wherever I go — it’s like having a personal guide everywhere.",
+    href: "",
+  },
+  {
+    author: {
+      name: "Sofia Rossi",
+      avatar:
+        "https://images.unsplash.com/photo-1529626455594-4ff0802cfb7e?w=150&h=150&fit=crop&crop=face",
+    },
+    text: "Spotnere feels personal — every place I visit through it has a story. It’s more than an app; it’s a way to explore meaningfully.",
+    href: "",
+  },
+  {
+    author: {
+      name: "Ryan Mitchell",
+      avatar:
+        "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=150&h=150&fit=crop&crop=face",
+    },
+    text: "I’ve used many travel apps, but Spotnere’s recommendations are spot on. It adapts to my preferences and keeps things fresh.",
+    href: "",
+  },
+  {
+    author: {
+      name: "Emily Nguyen",
+      avatar:
+        "https://images.unsplash.com/photo-1508214751196-bcfd4ca60f91?w=150&h=150&fit=crop&crop=face",
+    },
+    text: "Spotnere makes exploring so effortless. Whether it’s a weekend adventure or a quick coffee break, I always find something new.",
+    href: "",
+  },
+];
+
 const Index = () => {
   const featuredPlaces = samplePlaces.slice(0, 6);
 
@@ -144,7 +213,7 @@ const Index = () => {
           style={{ animationDelay: "1s" }}
         />
         <AnimatedTestimonialGrid
-          testimonials={testimonials}
+          testimonials={floatingImages}
           title={
             <>
               Find amazing places{" "}
@@ -161,55 +230,9 @@ const Index = () => {
       {/* How Spotnere Works */}
       <section
         id="how-it-works"
-        className="py-24 px-4 min-h-screen bg-gradient-to-b from-transparent to-muted/20 flex items-center"
+        className="py-18 px-4 min-h-screen bg-gradient-to-b from-transparent to-muted/20 flex items-center"
       >
-        <div className="container mx-auto my-auto max-w-6xl">
-          <div className="text-center mb-16">
-            <h2 className="text-4xl md:text-5xl font-serif font-bold mb-4">
-              How Spotnere Works
-            </h2>
-            <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-              Three simple steps to discover your next favorite place
-            </p>
-          </div>
-
-          <div className="grid md:grid-cols-3 gap-8">
-            <GlassCard className="text-center group">
-              <div className="w-16 h-16 mx-auto mb-6 bg-primary/10 rounded-2xl flex items-center justify-center transition-transform group-hover:scale-110">
-                <Map className="w-8 h-8 text-primary" />
-              </div>
-              <h3 className="text-xl font-serif font-semibold mb-3">
-                Discover
-              </h3>
-              <p className="text-muted-foreground">
-                Explore nearby places organized by categories, from cozy cafés
-                to beautiful parks.
-              </p>
-            </GlassCard>
-
-            <GlassCard className="text-center group">
-              <div className="w-16 h-16 mx-auto mb-6 bg-primary/10 rounded-2xl flex items-center justify-center transition-transform group-hover:scale-110">
-                <Filter className="w-8 h-8 text-primary" />
-              </div>
-              <h3 className="text-xl font-serif font-semibold mb-3">Filter</h3>
-              <p className="text-muted-foreground">
-                Refine by mood, price, rating, and amenities like "open now" or
-                "kid-friendly."
-              </p>
-            </GlassCard>
-
-            <GlassCard className="text-center group">
-              <div className="w-16 h-16 mx-auto mb-6 bg-primary/10 rounded-2xl flex items-center justify-center transition-transform group-hover:scale-110">
-                <Navigation className="w-8 h-8 text-primary" />
-              </div>
-              <h3 className="text-xl font-serif font-semibold mb-3">Go</h3>
-              <p className="text-muted-foreground">
-                Save favorites, share with friends, and get directions to your
-                next destination.
-              </p>
-            </GlassCard>
-          </div>
-        </div>
+        <HowItWorks />
       </section>
 
       {/* Featured Categories */}
@@ -220,7 +243,11 @@ const Index = () => {
               Featured Categories
             </h2>
             <p className="text-lg text-muted-foreground">
-              What are you in the mood for?
+              Discover the best your city has to offer.
+            </p>
+            <p className="text-lg text-muted-foreground">
+              Browse curated categories designed to match every mood, moment,
+              and adventure.
             </p>
           </div>
 
@@ -228,11 +255,43 @@ const Index = () => {
             {[
               { icon: Coffee, label: "Cafés", color: "text-amber-600" },
               { icon: Trees, label: "Nature", color: "text-green-600" },
-              { icon: Palette, label: "Museums", color: "text-purple-600" },
+              { icon: Landmark, label: "Museums", color: "text-purple-600" },
               { icon: Users, label: "Family", color: "text-blue-600" },
               { icon: Music, label: "Nightlife", color: "text-pink-600" },
               { icon: Wallet, label: "Budget", color: "text-emerald-600" },
               { icon: TrendingUp, label: "Trending", color: "text-orange-600" },
+              { icon: Utensils, label: "Restaurants", color: "text-red-600" },
+              { icon: Building, label: "Events", color: "text-teal-600" },
+              { icon: Volleyball, label: "Sports", color: "text-yellow-600" },
+              { icon: Waves, label: "Beaches", color: "text-blue-600" },
+              { icon: PawPrint, label: "Pet-Friendly", color: "text-gray-600" },
+              {
+                icon: Sparkle,
+                label: "Wellness & Spas",
+                color: "text-indigo-600",
+              },
+              {
+                icon: Sailboat,
+                label: "Water Activities",
+                color: "text-violet-600",
+              },
+              {
+                icon: Palette,
+                label: "Art Galleries",
+                color: "text-emerald-600",
+              },
+              {
+                icon: Film,
+                label: "Theaters & Cinemas",
+                color: "text-orange-600",
+              },
+              {
+                icon: Wine,
+                label: "Rooftop Bars",
+                color: "text-fuchsia-600",
+              },
+              { icon: Gem, label: "Hidden Gems", color: "text-yellow-600" },
+              { icon: BadgePlus, label: "Many More", color: "text-stone-600" },
             ].map((category) => (
               <Link
                 key={category.label}
@@ -249,14 +308,18 @@ const Index = () => {
       </section>
 
       {/* Nearby Highlights */}
-      <section className="py-24 px-4 bg-gradient-to-b from-muted/20 to-transparent">
-        <div className="container mx-auto max-w-6xl">
+      <section className="py-24 px-4 bg-gradient-to-b from-muted/30 to-transparent">
+        <div className="container mx-auto max-w-7xl">
           <div className="text-center mb-12">
             <h2 className="text-4xl md:text-5xl font-serif font-bold mb-4">
               Trending Near You
             </h2>
             <p className="text-lg text-muted-foreground">
-              Popular spots loved by the community
+              See what's buzzing around you - places that are loved, shared, and
+              celebrated by locals and travelers alike.
+            </p>
+            <p className="text-lg text-muted-foreground">
+              Stay updated with places that are making waves right now.
             </p>
           </div>
 
@@ -276,40 +339,90 @@ const Index = () => {
 
       {/* Social Proof & Stats */}
       <section className="py-24 px-4">
-        <div className="container mx-auto max-w-4xl">
-          <GlassCard hover={false} className="text-center">
-            <div className="grid md:grid-cols-3 gap-8 divide-y md:divide-y-0 md:divide-x divide-border">
-              <div className="py-4 md:py-0">
-                <div className="flex items-center justify-center gap-2 mb-2">
-                  <MapPin className="w-6 h-6 text-primary" />
-                  <div className="text-4xl font-serif font-bold">120k+</div>
-                </div>
-                <div className="text-muted-foreground">Places</div>
-              </div>
-              <div className="py-4 md:py-0">
-                <div className="flex items-center justify-center gap-2 mb-2">
-                  <BarChart3 className="w-6 h-6 text-primary" />
-                  <div className="text-4xl font-serif font-bold">2k+</div>
-                </div>
-                <div className="text-muted-foreground">Cities</div>
-              </div>
-              <div className="py-4 md:py-0">
-                <div className="flex items-center justify-center gap-2 mb-2">
-                  <Star className="w-6 h-6 text-primary fill-primary" />
-                  <div className="text-4xl font-serif font-bold">4.8</div>
-                </div>
-                <div className="text-muted-foreground">Average Rating</div>
-              </div>
-            </div>
-          </GlassCard>
+        <div className="container mx-auto max-w-6xl">
+          <div className="text-center mb-12">
+            <h2 className="text-4xl md:text-5xl font-serif font-bold mb-4">
+              Discover with us
+            </h2>
+            <p className="text-lg text-muted-foreground">
+              Explore the scale of our journey — millions of moments shared
+              across places, cities, and experiences.
+            </p>
+            <p className="text-lg text-muted-foreground">
+              Together, we’re redefining how people discover the world around
+              them.
+            </p>
+          </div>
+
+          <div className="flex flex-wrap justify-center gap-3">
+            <StatCard
+              title="Places added"
+              valueIcon={Pin}
+              value={500}
+              change={32}
+              changeDescription="last week"
+              icon={
+                <ArrowUpRight className="h-4 w-4 text-green-600 dark:text-green-400" />
+              }
+            />
+            <StatCard
+              title="Cities"
+              valueIcon={Building}
+              value={30}
+              change={12}
+              changeDescription="last week"
+              icon={
+                <ArrowUpRight className="h-4 w-4 text-green-600 dark:text-green-400" />
+              }
+            />
+            <StatCard
+              title="Average rating"
+              valueIcon={Sparkle}
+              value={4}
+              change={75}
+              changeDescription="last month"
+              icon={
+                <ArrowUpRight className="h-4 w-4 text-green-600 dark:text-green-400" />
+              }
+            />
+            <StatCard
+              title="Users"
+              valueIcon={Users}
+              value={1500}
+              change={27}
+              changeDescription="last month"
+              icon={
+                <ArrowUpRight className="h-4 w-4 text-green-600 dark:text-green-400" />
+              }
+            />
+          </div>
+        </div>
+      </section>
+
+      {/* Testimonials Section */}
+      <section className="py-24 px-4 bg-gradient-to-b from-muted/30 to-transparent">
+        <div className="container mx-auto max-w-6xl">
+          <div className="text-center mb-12">
+            <h2 className="text-4xl md:text-5xl font-serif font-bold mb-4">
+              Why People Love Spotnere
+            </h2>
+            <p className="text-lg text-muted-foreground">
+              Real experiences from people discovering their cities and the
+              world with Spotnere.
+            </p>
+          </div>
+
+          <div className="flex flex-wrap justify-center gap-3">
+            <TestimonialsSection testimonials={testimonials} />
+          </div>
         </div>
       </section>
 
       {/* Newsletter CTA */}
       <section className="py-24 px-4 bg-gradient-to-b from-transparent to-muted/20">
-        <div className="container mx-auto max-w-2xl">
-          <GlassCard hover={false} className="text-center">
-            <h2 className="text-3xl font-serif font-bold mb-4">
+        <div className="container mx-auto max-w-4xl">
+          <GlassCard hover={false} className="text-center p-14">
+            <h2 className="text-5xl font-serif font-bold mb-4">
               Stay in the Loop
             </h2>
             <p className="text-muted-foreground mb-8">
