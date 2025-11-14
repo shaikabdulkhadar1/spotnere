@@ -1,6 +1,6 @@
 import { Place } from "@/types/place";
 
-const API_BASE_URL = import.meta.env.VITE_API_URL_BACKEND;
+const API_BASE_URL = "https://spotnere.onrender.com";
 
 export interface ApiResponse<T> {
   success: boolean;
