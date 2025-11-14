@@ -1,6 +1,7 @@
 import { Place } from "@/types/place";
 
-const API_BASE_URL = process.env.VITE_API_URL_BACKEND;
+const API_BASE_URL =
+  import.meta.env.VITE_API_URL_BACKEND || "http://localhost:8000";
 
 console.log(API_BASE_URL);
 
