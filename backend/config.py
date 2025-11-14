@@ -9,7 +9,7 @@ class Settings:
     HOST: str = os.getenv("HOST", "0.0.0.0")
     PORT: int = int(os.getenv("PORT", "8000"))
     CORS_ORIGINS: list = os.getenv(
-        "CORS_ORIGINS", "http://localhost:8080,http://localhost:5173"
+        "CORS_ORIGINS", "http://localhost:8080,http://localhost:5173,https://spotnere.vercel.app/"
     ).split(",")
 
     @classmethod

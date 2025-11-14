@@ -74,16 +74,18 @@ export const placesApi = {
     if (params?.city) queryParams.append("city", params.city);
     if (params?.country) queryParams.append("country", params.country);
 
-    const url = `${API_BASE_URL}/api/places${queryParams.toString() ? `?${queryParams.toString()}` : ""}`;
-    
+    const url = `${API_BASE_URL}/api/places${
+      queryParams.toString() ? `?${queryParams.toString()}` : ""
+    }`;
+
     const response = await fetch(url);
-    
+
     if (!response.ok) {
       throw new Error(`Failed to fetch places: ${response.statusText}`);
     }
 
     const data: ApiResponse<any[]> = await response.json();
-    
+
     if (!data.success) {
       throw new Error(data.error || data.message || "Failed to fetch places");
     }
@@ -100,17 +102,21 @@ export const placesApi = {
    */
   async getFeaturedPlaces(limit: number = 10): Promise<PlacesResponse> {
     const url = `${API_BASE_URL}/api/places/featured?limit=${limit}`;
-    
+
     const response = await fetch(url);
-    
+
     if (!response.ok) {
-      throw new Error(`Failed to fetch featured places: ${response.statusText}`);
+      throw new Error(
+        `Failed to fetch featured places: ${response.statusText}`
+      );
     }
 
     const data: ApiResponse<any[]> = await response.json();
-    
+
     if (!data.success) {
-      throw new Error(data.error || data.message || "Failed to fetch featured places");
+      throw new Error(
+        data.error || data.message || "Failed to fetch featured places"
+      );
     }
 
     return {
@@ -128,15 +134,15 @@ export const placesApi = {
     if (limit) queryParams.append("limit", limit.toString());
 
     const url = `${API_BASE_URL}/api/places/search?${queryParams.toString()}`;
-    
+
     const response = await fetch(url);
-    
+
     if (!response.ok) {
       throw new Error(`Failed to search places: ${response.statusText}`);
     }
 
     const data: ApiResponse<any[]> = await response.json();
-    
+
     if (!data.success) {
       throw new Error(data.error || data.message || "Failed to search places");
     }
@@ -157,25 +163,25 @@ export const placesApi = {
     }
 
     const url = `${API_BASE_URL}/api/places/${encodeURIComponent(id)}`;
-    
+
     console.log("Fetching place from API:", url);
-    
+
     const response = await fetch(url);
-    
+
     if (!response.ok) {
       if (response.status === 404) {
         throw new Error(`Place with ID '${id}' not found`);
       }
       const errorData = await response.json().catch(() => ({}));
       throw new Error(
-        errorData.detail || 
-        errorData.message || 
-        `Failed to fetch place: ${response.statusText}`
+        errorData.detail ||
+          errorData.message ||
+          `Failed to fetch place: ${response.statusText}`
       );
     }
 
     const data: ApiResponse<any> = await response.json();
-    
+
     if (!data.success) {
       throw new Error(data.error || data.message || "Failed to fetch place");
     }
@@ -184,4 +190,3 @@ export const placesApi = {
     return mapApiPlaceToPlace(data.data);
   },
 };
-
