@@ -1,6 +1,6 @@
 import { Place } from "@/types/place";
 
-const API_BASE_URL = import.meta.env.VITE_API_URL;
+const API_BASE_URL = import.meta.env.VITE_API_URL_BACKEND;
 
 export interface ApiResponse<T> {
   success: boolean;
