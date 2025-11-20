@@ -1,4 +1,5 @@
 import { Place } from "@/types/place";
+import { categories, getCategory, getSubCategories } from "@/lib/categories";
 
 /**
  * Calculate distance between two coordinates using Haversine formula
@@ -104,23 +105,74 @@ export const filterPlacesByState = (
 
 /**
  * Filter places by country name (case-insensitive)
+ * Handles common country name variations
  */
 export const filterPlacesByCountry = (
   places: Place[],
   country: string
 ): Place[] => {
   if (!country) return [];
-  return places.filter(
-    (place) =>
-      place.country &&
-      place.country.toLowerCase().trim() === country.toLowerCase().trim()
-  );
+  const countryLower = country.toLowerCase().trim();
+
+  // Common country name variations/mappings
+  const countryVariations: Record<string, string[]> = {
+    "united states": [
+      "united states",
+      "usa",
+      "us",
+      "united states of america",
+      "u.s.a.",
+      "u.s.",
+    ],
+    "united kingdom": [
+      "united kingdom",
+      "uk",
+      "great britain",
+      "britain",
+      "england",
+    ],
+    "united arab emirates": ["united arab emirates", "uae", "emirates"],
+    "south korea": ["south korea", "korea", "republic of korea"],
+    "north korea": [
+      "north korea",
+      "democratic people's republic of korea",
+      "dprk",
+    ],
+  };
+
+  // Get variations for the country, or use the country itself
+  const variations = countryVariations[countryLower] || [countryLower];
+  // Also add the original country name
+  if (!variations.includes(countryLower)) {
+    variations.push(countryLower);
+  }
+
+  return places.filter((place) => {
+    if (!place.country) return false;
+    const placeCountryLower = place.country.toLowerCase().trim();
+
+    // Exact match with any variation
+    if (variations.some((v) => placeCountryLower === v)) {
+      return true;
+    }
+
+    // Partial match (for cases like "United States" matching "United States of America")
+    if (
+      variations.some(
+        (v) => placeCountryLower.includes(v) || v.includes(placeCountryLower)
+      )
+    ) {
+      return true;
+    }
+
+    return false;
+  });
 };
 
 /**
  * Filter places by category (case-insensitive)
+ * Uses categories and subcategories from categories.ts
  * Also checks tags array for category matches
- * Handles common variations (e.g., "cafe" matches "café", "coffee shop")
  */
 export const filterPlacesByCategory = (
   places: Place[],
@@ -129,73 +181,59 @@ export const filterPlacesByCategory = (
   if (!category) return [];
   const categoryLower = category.toLowerCase().trim();
 
-  // Normalize category variations
-  const categoryVariations: Record<string, string[]> = {
-    cafe: ["cafe", "café", "coffee", "coffee shop", "coffeeshop"],
-    restaurant: ["restaurant", "restaurants", "dining", "diner", "eatery"],
-    nature: [
-      "nature",
-      "park",
-      "parks",
-      "outdoor",
-      "hiking",
-      "trail",
-      "forest",
-      "wildlife",
-      "natural",
-    ],
-    adventure: [
-      "adventure",
-      "adventures",
-      "adventure sports",
-      "extreme sports",
-      "rock climbing",
-      "zip line",
-      "zipline",
-      "bungee",
-      "rafting",
-      "kayaking",
-      "surfing",
-      "skydiving",
-      "paragliding",
-    ],
-    entertainment: [
-      "entertainment",
-      "theater",
-      "theatre",
-      "cinema",
-      "movie",
-      "movies",
-      "concert",
-      "music",
-      "live music",
-      "comedy",
-      "show",
-      "shows",
-      "event",
-      "events",
-      "nightlife",
-      "club",
-      "bars",
-    ],
-  };
+  // Get category from categories.ts
+  const categoryData = getCategory(category);
+  const subCategories = getSubCategories(category);
 
-  const variations = categoryVariations[categoryLower] || [categoryLower];
+  // Build variations array: category name + all subcategories
+  const variations: string[] = [categoryLower];
+  if (categoryData) {
+    // Add category name (lowercased)
+    variations.push(categoryData.name.toLowerCase().trim());
+    // Add all subcategories (lowercased)
+    subCategories.forEach((sub) => {
+      variations.push(sub.toLowerCase().trim());
+    });
+  }
+
+  // Special handling for "Tickets and Events" / "Tickets to Event"
+  // If searching for "event", also check "Tickets to Event" category
+  if (categoryLower === "event" || categoryLower.includes("ticket")) {
+    const ticketsEventCategory = getCategory("Tickets to Event");
+    if (ticketsEventCategory) {
+      variations.push("tickets to event");
+      variations.push("tickets and events");
+      getSubCategories("Tickets to Event").forEach((sub) => {
+        variations.push(sub.toLowerCase().trim());
+      });
+    }
+  }
 
   return places.filter((place) => {
-    // Check category field
+    // Check category field - exact match
     if (place.category) {
       const placeCategoryLower = place.category.toLowerCase().trim();
+
+      // Exact match with category name or any variation
       if (variations.some((v) => placeCategoryLower === v)) {
         return true;
       }
-      // Also check if category contains any variation
+
+      // Partial match (for cases like "Tickets to Event" matching "Event")
       if (
         variations.some(
           (v) =>
             placeCategoryLower.includes(v) || v.includes(placeCategoryLower)
         )
       ) {
+        return true;
+      }
+    }
+
+    // Check sub_category field
+    if (place.subCategory) {
+      const placeSubCategoryLower = place.subCategory.toLowerCase().trim();
+      if (variations.some((v) => placeSubCategoryLower === v)) {
         return true;
       }
     }

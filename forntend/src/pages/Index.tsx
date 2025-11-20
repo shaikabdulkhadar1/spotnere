@@ -1,14 +1,10 @@
-import React from "react";
-import { Link } from "react-router-dom";
+import React, { useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
-import GlassCard from "@/components/GlassCard";
-import PlaceCard from "@/components/PlaceCard";
 import PlacesCarousel from "@/components/PlacesCarousel";
 import { usePlaces } from "@/hooks/use-places";
-import { useGeolocation } from "@/hooks/use-geolocation";
+import { useGeolocation } from "@/contexts/GeolocationContext";
 import { MapPin } from "lucide-react";
 import {
   filterPlacesNearMe,
@@ -16,37 +12,9 @@ import {
   filterPlacesByState,
   filterPlacesByCountry,
   filterPlacesByCategory,
-  filterPlacesByCategoryAndState,
 } from "@/lib/place-filters";
 import { useMemo } from "react";
-import {
-  Sailboat,
-  Coffee,
-  Waves,
-  Trees,
-  Sparkle,
-  Wine,
-  Gem,
-  BadgePlus,
-  Palette,
-  Utensils,
-  Volleyball,
-  Users,
-  Music,
-  Wallet,
-  TrendingUp,
-  PawPrint,
-  Landmark,
-  Film,
-  Building,
-  ArrowUpRight,
-  Pin,
-} from "lucide-react";
 import { AnimatedTestimonialGrid } from "@/components/ui/testimonial-2";
-import { HowItWorks } from "@/components/ui/how-it-works";
-import { StatCard } from "@/components/ui/card-10";
-import { TestimonialsSection } from "@/components/blocks/testimonials-with-marquee";
-import Navbar2 from "@/components/Navbar2";
 
 const defaultProps = {
   gradientColors: {
@@ -119,72 +87,6 @@ const floatingImages = [
   },
 ];
 
-const testimonials = [
-  {
-    author: {
-      name: "Emma Thompson",
-      avatar:
-        "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=150&h=150&fit=crop&crop=face",
-    },
-    text: "Spotnere helped me rediscover my own city — I found hidden cafés and quiet reading spots I’d never noticed before.",
-    href: "",
-  },
-  {
-    author: {
-      name: "Lucas Hernández",
-      avatar:
-        "https://images.unsplash.com/photo-1603415526960-f7e0328e3d4b?w=150&h=150&fit=crop&crop=face",
-    },
-    text: "The 'Trending Near Me' section is a game changer. I’ve found so many local gems just by exploring casually on weekends.",
-    href: "",
-  },
-  {
-    author: {
-      name: "Aisha Patel",
-      avatar:
-        "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=150&h=150&fit=crop&crop=face",
-    },
-    text: "I love how simple and beautiful the interface is. Searching for places feels natural, and every suggestion fits my mood perfectly.",
-    href: "",
-  },
-  {
-    author: {
-      name: "Daniel Okafor",
-      avatar:
-        "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150&h=150&fit=crop&crop=face",
-    },
-    text: "As a frequent traveler, I rely on Spotnere to discover unique spots wherever I go — it’s like having a personal guide everywhere.",
-    href: "",
-  },
-  {
-    author: {
-      name: "Sofia Rossi",
-      avatar:
-        "https://images.unsplash.com/photo-1529626455594-4ff0802cfb7e?w=150&h=150&fit=crop&crop=face",
-    },
-    text: "Spotnere feels personal — every place I visit through it has a story. It’s more than an app; it’s a way to explore meaningfully.",
-    href: "",
-  },
-  {
-    author: {
-      name: "Ryan Mitchell",
-      avatar:
-        "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=150&h=150&fit=crop&crop=face",
-    },
-    text: "I’ve used many travel apps, but Spotnere’s recommendations are spot on. It adapts to my preferences and keeps things fresh.",
-    href: "",
-  },
-  {
-    author: {
-      name: "Emily Nguyen",
-      avatar:
-        "https://images.unsplash.com/photo-1508214751196-bcfd4ca60f91?w=150&h=150&fit=crop&crop=face",
-    },
-    text: "Spotnere makes exploring so effortless. Whether it’s a weekend adventure or a quick coffee break, I always find something new.",
-    href: "",
-  },
-];
-
 const Index = () => {
   // Get user's location
   const {
@@ -197,7 +99,7 @@ const Index = () => {
     error: locationError,
   } = useGeolocation();
 
-  // Fetch all places from country (or all places if no country)
+  // Fetch all places when page loads
   // We'll filter them on the frontend for different carousels
   const {
     data: allPlaces,
@@ -206,14 +108,13 @@ const Index = () => {
     error,
   } = usePlaces({
     limit: 100, // Get more places to filter
-    country: country || undefined,
-    enabled: !locationLoading,
+    enabled: true, // Always fetch on page load
   });
 
   // Filter places for different carousels
   const placesNearMe = useMemo(() => {
     if (!allPlaces || !latitude || !longitude) return [];
-    return filterPlacesNearMe(allPlaces, latitude, longitude, 50).slice(0, 9);
+    return filterPlacesNearMe(allPlaces, latitude, longitude, 50).slice(0, 6);
   }, [allPlaces, latitude, longitude]);
 
   const placesByCity = useMemo(() => {
@@ -252,61 +153,68 @@ const Index = () => {
         },
       });
     }
-    return filtered.slice(0, 9);
+    return filtered.slice(0, 6);
   }, [allPlaces, city]);
 
   const placesByState = useMemo(() => {
     if (!allPlaces || !state) return [];
-    return filterPlacesByState(allPlaces, state).slice(0, 9);
+    return filterPlacesByState(allPlaces, state).slice(0, 6);
   }, [allPlaces, state]);
 
   const placesByCountry = useMemo(() => {
-    if (!allPlaces || !country) return [];
-    return filterPlacesByCountry(allPlaces, country).slice(0, 9);
+    if (!allPlaces || !country) {
+      console.log("🌍 Country filter: No places or country missing", {
+        hasPlaces: !!allPlaces,
+        country,
+      });
+      return [];
+    }
+    const filtered = filterPlacesByCountry(allPlaces, country);
+    console.log("🌍 Country filter results:", {
+      country,
+      totalPlaces: allPlaces.length,
+      filteredCount: filtered.length,
+      placesWithCountry: allPlaces.filter((p) => p.country).length,
+      sampleCountries: allPlaces
+        .filter((p) => p.country)
+        .slice(0, 10)
+        .map((p) => p.country),
+    });
+    return filtered.slice(0, 6);
   }, [allPlaces, country]);
 
-  // Filter places by category (Cafe) in the same state
-  const placesByCafe = useMemo(() => {
-    if (!allPlaces || !state) return [];
-    return filterPlacesByCategoryAndState(allPlaces, "Cafe", state).slice(0, 9);
-  }, [allPlaces, state]);
+  // Filter places by category: Sports (within same country)
+  const placesBySports = useMemo(() => {
+    if (!allPlaces || !country) return [];
+    const categoryFiltered = filterPlacesByCategory(allPlaces, "Sports");
+    const countryFiltered = filterPlacesByCountry(categoryFiltered, country);
+    return countryFiltered.slice(0, 6);
+  }, [allPlaces, country]);
 
-  // Filter places by category (Nature) in the same state
-  const placesByNature = useMemo(() => {
-    if (!allPlaces || !state) return [];
-    return filterPlacesByCategoryAndState(allPlaces, "Nature", state).slice(
-      0,
-      9
-    );
-  }, [allPlaces, state]);
-
-  // Filter places by category (Adventure) in the same state
+  // Filter places by category: Adventure (within same country)
   const placesByAdventure = useMemo(() => {
-    if (!allPlaces || !state) return [];
-    return filterPlacesByCategoryAndState(allPlaces, "Adventure", state).slice(
-      0,
-      9
-    );
-  }, [allPlaces, state]);
+    if (!allPlaces || !country) return [];
+    const categoryFiltered = filterPlacesByCategory(allPlaces, "Adventure");
+    const countryFiltered = filterPlacesByCountry(categoryFiltered, country);
+    return countryFiltered.slice(0, 6);
+  }, [allPlaces, country]);
 
-  // Filter places by category (Entertainment) in the same state
-  const placesByEntertainment = useMemo(() => {
-    if (!allPlaces || !state) return [];
-    return filterPlacesByCategoryAndState(
-      allPlaces,
-      "Entertainment",
-      state
-    ).slice(0, 9);
-  }, [allPlaces, state]);
+  // Filter places by category: Staycation (within same country)
+  const placesByStaycation = useMemo(() => {
+    if (!allPlaces || !country) return [];
+    const categoryFiltered = filterPlacesByCategory(allPlaces, "Staycation");
+    const countryFiltered = filterPlacesByCountry(categoryFiltered, country);
+    return countryFiltered.slice(0, 6);
+  }, [allPlaces, country]);
 
-  // Filter places by category (Restaurant) in the same state
-  const placesByRestaurant = useMemo(() => {
-    if (!allPlaces || !state) return [];
-    return filterPlacesByCategoryAndState(allPlaces, "Restaurant", state).slice(
-      0,
-      9
-    );
-  }, [allPlaces, state]);
+  // Filter places by category: Tickets and Events (within same country)
+  const placesByTicketsAndEvents = useMemo(() => {
+    if (!allPlaces || !country) return [];
+    // Filter by "Event" category - the filter will handle variations
+    const categoryFiltered = filterPlacesByCategory(allPlaces, "event");
+    const countryFiltered = filterPlacesByCountry(categoryFiltered, country);
+    return countryFiltered.slice(0, 6);
+  }, [allPlaces, country]);
 
   return (
     <div className="min-h-screen">
@@ -468,58 +376,48 @@ const Index = () => {
             {country && placesByCountry.length > 0 && (
               <PlacesCarousel
                 title={`In ${country}`}
-                subtitle={`Featured places across ${country}`}
+                subtitle={`Discover amazing places across ${country}`}
                 places={placesByCountry}
                 showGuestFavorite={true}
               />
             )}
 
-            {/* Cafe Carousel */}
-            {state && placesByCafe.length > 0 && (
+            {/* Sports Carousel */}
+            {placesBySports.length > 0 && (
               <PlacesCarousel
-                title="Cafes"
-                subtitle={`Discover cozy cafes and coffee spots in ${state}`}
-                places={placesByCafe}
-                showGuestFavorite={true}
-              />
-            )}
-
-            {/* Restaurant Carousel */}
-            {state && placesByRestaurant.length > 0 && (
-              <PlacesCarousel
-                title="Restaurants"
-                subtitle={`Explore amazing dining experiences in ${state}`}
-                places={placesByRestaurant}
-                showGuestFavorite={true}
-              />
-            )}
-
-            {/* Nature Carousel */}
-            {state && placesByNature.length > 0 && (
-              <PlacesCarousel
-                title="Nature"
-                subtitle={`Discover natural places in ${state}`}
-                places={placesByNature}
+                title="Sports"
+                subtitle="Discover exciting sports venues and activities"
+                places={placesBySports}
                 showGuestFavorite={true}
               />
             )}
 
             {/* Adventure Carousel */}
-            {state && placesByAdventure.length > 0 && (
+            {placesByAdventure.length > 0 && (
               <PlacesCarousel
                 title="Adventure"
-                subtitle={`Thrilling adventures in ${state}`}
+                subtitle="Thrilling adventures and extreme experiences"
                 places={placesByAdventure}
                 showGuestFavorite={true}
               />
             )}
 
-            {/* Entertainment Carousel */}
-            {state && placesByEntertainment.length > 0 && (
+            {/* Staycation Carousel */}
+            {placesByStaycation.length > 0 && (
               <PlacesCarousel
-                title="Entertainment"
-                subtitle={`Fun entertainment venues in ${state}`}
-                places={placesByEntertainment}
+                title="Staycation"
+                subtitle="Perfect staycation spots for a relaxing getaway"
+                places={placesByStaycation}
+                showGuestFavorite={true}
+              />
+            )}
+
+            {/* Tickets and Events Carousel */}
+            {placesByTicketsAndEvents.length > 0 && (
+              <PlacesCarousel
+                title="Tickets and Events"
+                subtitle="Upcoming events and ticket opportunities"
+                places={placesByTicketsAndEvents}
                 showGuestFavorite={true}
               />
             )}
@@ -533,7 +431,7 @@ const Index = () => {
                 <PlacesCarousel
                   title="Featured places"
                   subtitle="A collection of independent and handpicked places"
-                  places={allPlaces.slice(0, 9)}
+                  places={allPlaces.slice(0, 6)}
                   showGuestFavorite={true}
                 />
               )}

@@ -1,6 +1,7 @@
 import * as React from "react";
 import { motion } from "framer-motion";
 import { ArrowRight } from "lucide-react";
+import { Link } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import GlassCard from "@/components/GlassCard";
 import {
@@ -167,9 +168,11 @@ export const AnimatedTestimonialGrid = ({
                 </SelectContent>
               </Select>
             </div>
-            <Button className="hover-lift">
-              <Search className="w-4 h-4 mr-2" />
-              Explore
+            <Button className="hover-lift" asChild>
+              <Link to={ctaHref}>
+                <Search className="w-4 h-4 mr-2" />
+                Explore
+              </Link>
             </Button>
           </div>
         </GlassCard>

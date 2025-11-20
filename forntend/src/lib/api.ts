@@ -1,8 +1,7 @@
 import { Place } from "@/types/place";
 
-const API_BASE_URL = import.meta.env.VITE_API_URL_BACKEND;
-
-console.log(API_BASE_URL);
+const API_BASE_URL =
+  import.meta.env.VITE_API_URL_BACKEND || "http://localhost:8000";
 
 export interface ApiResponse<T> {
   success: boolean;
@@ -18,43 +17,67 @@ export interface PlacesResponse {
   count: number;
 }
 
-// Map API response to frontend Place type
+// Map API response to frontend Place type based on database schema
 const mapApiPlaceToPlace = (apiPlace: any): Place => {
-  // Handle banner_image_link - prefer banner_image_link, fallback to images array
-  let bannerImageLink = "";
-  if (apiPlace.banner_image_link) {
-    bannerImageLink = apiPlace.banner_image_link;
-  } else if (apiPlace.images) {
-    // Fallback: if images array exists, use first image
-    if (Array.isArray(apiPlace.images) && apiPlace.images.length > 0) {
-      bannerImageLink = apiPlace.images[0];
-    } else if (typeof apiPlace.images === "string") {
-      bannerImageLink = apiPlace.images;
+  // Handle coordinates from latitude/longitude columns (from schema)
+  const latitude =
+    apiPlace.latitude !== undefined && apiPlace.latitude !== null
+      ? parseFloat(apiPlace.latitude)
+      : undefined;
+  const longitude =
+    apiPlace.longitude !== undefined && apiPlace.longitude !== null
+      ? parseFloat(apiPlace.longitude)
+      : undefined;
+
+  // Create coordinates object from latitude/longitude (required by Place type)
+  const coordinates = {
+    lat: latitude ?? 0,
+    lng: longitude ?? 0,
+  };
+
+  // Handle last_updated timestamp
+  let lastUpdated = new Date().toISOString();
+  if (apiPlace.last_updated) {
+    if (typeof apiPlace.last_updated === "string") {
+      lastUpdated = apiPlace.last_updated;
+    } else {
+      lastUpdated = new Date(apiPlace.last_updated).toISOString();
     }
   }
 
   return {
     id: apiPlace.id,
-    name: apiPlace.name,
-    category: apiPlace.category as Place["category"],
+    name: apiPlace.name || "",
+    category: (apiPlace.category || "Other") as Place["category"],
+    subCategory: apiPlace.sub_category || undefined,
     description: apiPlace.description || "",
-    bannerImageLink: bannerImageLink,
-    rating: apiPlace.rating || 0,
-    priceLevel: apiPlace.price_level as 1 | 2 | 3 | undefined,
-    coordinates: apiPlace.coordinates || { lat: 0, lng: 0 },
+    bannerImageLink: apiPlace.banner_image_link || "",
+    rating:
+      apiPlace.rating !== undefined && apiPlace.rating !== null
+        ? parseFloat(apiPlace.rating)
+        : 0,
+    avgPrice:
+      apiPlace.avg_price !== undefined && apiPlace.avg_price !== null
+        ? parseFloat(apiPlace.avg_price)
+        : undefined,
+    coordinates: coordinates,
     address: apiPlace.address || "",
     city: apiPlace.city || "",
-    state: apiPlace.state ?? "",
+    state: apiPlace.state || undefined,
     country: apiPlace.country || "",
-    distanceKm: apiPlace.distance_km,
-    hours: apiPlace.hours || [],
-    openNow: apiPlace.open_now,
-    amenities: Array.isArray(apiPlace.amenities) ? apiPlace.amenities : [],
-    tags: Array.isArray(apiPlace.tags) ? apiPlace.tags : [],
-    website: apiPlace.website,
-    phone: apiPlace.phone,
-    reviewsCount: apiPlace.reviews_count,
-    lastUpdated: apiPlace.last_updated || new Date().toISOString(),
+    postalCode: apiPlace.postal_code || undefined,
+    latitude: latitude,
+    longitude: longitude,
+    locationMapLink: apiPlace.location_map_link || undefined,
+    hours: apiPlace.hours || undefined,
+    amenities: Array.isArray(apiPlace.amenities)
+      ? apiPlace.amenities
+      : undefined,
+    website: apiPlace.website || undefined,
+    phoneNumber: apiPlace.phone_number || undefined,
+    reviewCount: apiPlace.review_count ?? 0,
+    visible: apiPlace.visible !== undefined ? apiPlace.visible : true,
+    lastUpdated: lastUpdated,
   };
 };
 
@@ -80,13 +103,37 @@ export const placesApi = {
       queryParams.toString() ? `?${queryParams.toString()}` : ""
     }`;
 
+    console.log("🔗 Fetching places from:", url);
+    console.log("🌐 API Base URL:", API_BASE_URL);
+
     const response = await fetch(url);
 
+    console.log("📡 Response status:", response.status, response.statusText);
+    console.log(
+      "📡 Response headers:",
+      Object.fromEntries(response.headers.entries())
+    );
+
+    // Check if response is actually JSON
+    const contentType = response.headers.get("content-type");
+    if (!contentType || !contentType.includes("application/json")) {
+      const text = await response.text();
+      console.error("❌ Non-JSON response received:", text.substring(0, 200));
+      throw new Error(
+        `API returned non-JSON response. Status: ${response.status}. Check if backend server is running at ${API_BASE_URL}`
+      );
+    }
+
     if (!response.ok) {
-      throw new Error(`Failed to fetch places: ${response.statusText}`);
+      const errorText = await response.text();
+      console.error("❌ Error response:", errorText);
+      throw new Error(
+        `Failed to fetch places: ${response.statusText} (${response.status})`
+      );
     }
 
     const data: ApiResponse<any[]> = await response.json();
+    console.log("✅ Places API response:", data);
 
     if (!data.success) {
       throw new Error(data.error || data.message || "Failed to fetch places");

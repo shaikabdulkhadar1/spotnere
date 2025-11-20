@@ -14,7 +14,7 @@ const PlaceCard = ({ place, onClick }: PlaceCardProps) => {
     : undefined;
 
   return (
-    <GlassCard onClick={onClick} className="h-[28rem] group overflow-hidden">
+    <GlassCard onClick={onClick} className="h-[22rem] group overflow-hidden">
       <div
         className="absolute inset-0 bg-cover bg-center 
                        transition-transform duration-500 ease-in-out group-hover:scale-110"
