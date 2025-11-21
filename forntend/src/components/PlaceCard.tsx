@@ -1,7 +1,8 @@
 import { Place } from "@/types/place";
 import GlassCard from "./GlassCard";
 import { Badge } from "@/components/ui/badge";
-import { Star, MapPin, DollarSign } from "lucide-react";
+import { Star, MapPin } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 interface PlaceCardProps {
   place: Place;
@@ -9,12 +10,22 @@ interface PlaceCardProps {
 }
 
 const PlaceCard = ({ place, onClick }: PlaceCardProps) => {
+  const navigate = useNavigate();
+
+  const handleClick = () => {
+    if (onClick) {
+      onClick();
+    } else {
+      navigate(`/place/${place.id}`);
+    }
+  };
+
   const priceSymbols = place.priceLevel
     ? "$".repeat(place.priceLevel)
     : undefined;
 
   return (
-    <GlassCard onClick={onClick} className="h-[22rem] group overflow-hidden">
+    <GlassCard onClick={handleClick} className="h-[22rem] group overflow-hidden">
       <div
         className="absolute inset-0 bg-cover bg-center 
                        transition-transform duration-500 ease-in-out group-hover:scale-110"

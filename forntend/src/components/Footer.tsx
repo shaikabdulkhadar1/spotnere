@@ -5,7 +5,7 @@ const Footer = () => {
   return (
     <footer className="border-t border-border bg-card/50 backdrop-blur-sm">
       <div className="container mx-auto px-4 py-12">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-8">
           <div className="col-span-1 md:col-span-2">
             <div className="flex items-center gap-2 mb-4">
               <img
@@ -22,7 +22,7 @@ const Footer = () => {
           </div>
 
           <div>
-            <p className="font-semibold mb-4">Explore</p>
+            <p className="font-semibold mb-4">Company</p>
             <ul className="space-y-2 text-sm">
               <li>
                 <Link
@@ -32,36 +32,6 @@ const Footer = () => {
                   All Places
                 </Link>
               </li>
-              <li>
-                <Link
-                  to="/explore?category=cafe"
-                  className="text-muted-foreground hover:text-primary transition-smooth"
-                >
-                  Cafés
-                </Link>
-              </li>
-              <li>
-                <Link
-                  to="/explore?category=park"
-                  className="text-muted-foreground hover:text-primary transition-smooth"
-                >
-                  Parks
-                </Link>
-              </li>
-              <li>
-                <Link
-                  to="/explore?category=museum"
-                  className="text-muted-foreground hover:text-primary transition-smooth"
-                >
-                  Museums
-                </Link>
-              </li>
-            </ul>
-          </div>
-
-          <div>
-            <p className="font-semibold mb-4">Company</p>
-            <ul className="space-y-2 text-sm">
               <li>
                 <Link
                   to="/about"

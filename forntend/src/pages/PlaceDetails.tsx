@@ -15,8 +15,14 @@ import {
   Clock,
   ArrowLeft,
   Share2,
+  ShieldCheck,
+  BadgeCheck,
+  Shield,
+  Users,
+  BedDouble,
+  Bath,
+  Ruler,
 } from "lucide-react";
-import { Loader2 } from "lucide-react";
 import { useState } from "react";
 import { cn } from "@/lib/utils";
 
@@ -97,65 +103,44 @@ const PlaceDetails = () => {
   }
 
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen bg-muted/10">
       <Navbar />
-      <div className="pt-24 pb-12 px-4">
+      <div className="pt-24 pb-16 px-4">
         <div className="container mx-auto max-w-6xl">
-          {/* Back Button */}
-          <Button variant="ghost" onClick={() => navigate(-1)} className="mb-6">
-            <ArrowLeft className="h-4 w-4 mr-2" />
-            Back
-          </Button>
-
-          {/* Header Section */}
-          <div className="mb-6">
-            <div className="flex items-start justify-between mb-4">
-              <div className="flex-1">
-                <h1 className="text-3xl md:text-4xl font-serif font-bold mb-2">
-                  {place.name}
-                </h1>
-                <div className="flex items-center gap-4 flex-wrap">
-                  <div className="flex items-center gap-1">
-                    <Star className="h-5 w-5 fill-amber-400 text-amber-500" />
-                    <span className="font-semibold">{place.rating}</span>
-                    {place.reviewsCount && (
-                      <span className="text-muted-foreground">
-                        ({place.reviewsCount} reviews)
-                      </span>
-                    )}
-                  </div>
-                  <Badge variant="outline">{place.category}</Badge>
-                  {place.priceLevel && (
-                    <span className="text-sm font-medium">
-                      {getPrice(place.priceLevel)}
-                    </span>
+          {/* Top bar: back + bookmark */}
+          <div className="flex items-center justify-between mb-6">
+            <Button variant="ghost" onClick={() => navigate(-1)}>
+              <ArrowLeft className="h-4 w-4 mr-2" />
+              Back
+            </Button>
+            <div className="flex items-center gap-2">
+              <Button
+                variant="outline"
+                size="icon"
+                className="rounded-full"
+                onClick={() => setIsFavorite(!isFavorite)}
+              >
+                <Heart
+                  className={cn(
+                    "h-5 w-5",
+                    isFavorite && "fill-red-500 text-red-500"
                   )}
-                </div>
-              </div>
-              <div className="flex items-center gap-2">
-                <Button
-                  variant="outline"
-                  size="icon"
-                  onClick={() => setIsFavorite(!isFavorite)}
-                >
-                  <Heart
-                    className={cn(
-                      "h-5 w-5",
-                      isFavorite && "fill-red-500 text-red-500"
-                    )}
-                  />
-                </Button>
-                <Button variant="outline" size="icon">
-                  <Share2 className="h-5 w-5" />
-                </Button>
-              </div>
+                />
+              </Button>
+              <Button variant="outline" size="icon" className="rounded-full">
+                <Share2 className="h-5 w-5" />
+              </Button>
             </div>
+          </div>
 
-            {/* Location */}
-            <div className="flex items-center gap-2 text-muted-foreground">
-              <MapPin className="h-4 w-4" />
+          {/* Title + location */}
+          <div className="mb-6 space-y-2">
+            <p className="text-3xl md:text-4xl font-serif font-bold">
+              {place.name}
+            </p>
+            <div className="flex items-center gap-2 text-muted-foreground text-sm">
+              <MapPin className="h-4 w-4 text-primary" />
               <span>
-                {place.address && `${place.address}, `}
                 {place.city}
                 {place.state && `, ${place.state}`}
                 {place.country && `, ${place.country}`}
@@ -163,68 +148,129 @@ const PlaceDetails = () => {
             </div>
           </div>
 
-          {/* Image Gallery */}
+          {/* Image banner */}
           <div className="mb-8">
-            <div className="relative h-[400px] md:h-[500px] rounded-2xl overflow-hidden">
+            <div className="relative h-[260px] md:h-[360px] rounded-3xl overflow-hidden">
               <img
                 src={place.bannerImageLink || "/placeholder.svg"}
                 alt={place.name}
                 className="w-full h-full object-cover"
               />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent" />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent" />
             </div>
           </div>
 
-          {/* Main Content */}
-          <div className="grid md:grid-cols-3 gap-8">
-            {/* Left Column - Main Info */}
-            <div className="md:col-span-2 space-y-6">
+          {/* Trust + stats section */}
+          <div className="mb-8 space-y-4 rounded-3xl border bg-white/90 shadow-md px-4 py-4 md:px-6 md:py-5">
+            {/* Trust badges row */}
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+              <div className="flex items-center gap-2 rounded-full border border-border bg-muted/40 px-4 py-2 shadow-sm">
+                <ShieldCheck className="h-4 w-4 text-primary" />
+                <span className="text-xs font-medium">Certified owners</span>
+              </div>
+              <div className="flex items-center gap-2 rounded-full border border-border bg-muted/40 px-4 py-2 shadow-sm">
+                <BadgeCheck className="h-4 w-4 text-primary" />
+                <span className="text-xs font-medium">
+                  Best price guarantee
+                </span>
+              </div>
+              <div className="flex items-center gap-2 rounded-full border border-border bg-muted/40 px-4 py-2 shadow-sm">
+                <Shield className="h-4 w-4 text-primary" />
+                <span className="text-xs font-medium">100% trusted</span>
+              </div>
+              <div className="flex items-center gap-2 rounded-full border border-border bg-muted/40 px-4 py-2 shadow-sm">
+                <Star className="h-4 w-4 text-amber-500 fill-amber-400" />
+                <span className="text-xs font-medium">
+                  {place.rating.toFixed(1)} rating
+                </span>
+              </div>
+            </div>
+
+            {/* Stats row */}
+            <div className="rounded-2xl bg-white/80 mt-2 grid grid-cols-2 md:grid-cols-4 divide-y md:divide-y-0 md:divide-x divide-border">
+              <div className="flex items-center gap-3 py-3 md:px-4 px-3">
+                <Users className="h-5 w-5 text-primary" />
+                <div>
+                  <p className="text-xs text-muted-foreground">Guests</p>
+                  <p className="text-sm font-semibold">
+                    {place.tags?.length ? `${place.tags.length}+` : "Up to 4"}
+                  </p>
+                </div>
+              </div>
+              <div className="flex items-center gap-3 py-3 md:px-4 px-3">
+                <BedDouble className="h-5 w-5 text-primary" />
+                <div>
+                  <p className="text-xs text-muted-foreground">Category</p>
+                  <p className="text-sm font-semibold">{place.category}</p>
+                </div>
+              </div>
+              <div className="flex items-center gap-3 py-3 md:px-4 px-3">
+                <Bath className="h-5 w-5 text-primary" />
+                <div>
+                  <p className="text-xs text-muted-foreground">City</p>
+                  <p className="text-sm font-semibold">{place.city || "N/A"}</p>
+                </div>
+              </div>
+              <div className="flex items-center gap-3 py-3 md:px-4 px-3">
+                <Ruler className="h-5 w-5 text-primary" />
+                <div>
+                  <p className="text-xs text-muted-foreground">Avg price</p>
+                  <p className="text-sm font-semibold">
+                    {place.avgPrice ? `$${place.avgPrice}` : "N/A"}
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Main content + reservation sidebar */}
+          <div className="grid md:grid-cols-[2fr,1.2fr] gap-8 items-start">
+            {/* Left: details */}
+            <div className="space-y-8">
               {/* Description */}
-              <div>
-                <h2 className="text-2xl font-serif font-bold mb-4">
-                  About this place
-                </h2>
-                <p className="text-muted-foreground leading-relaxed">
+              <section>
+                <p className="text-xl md:text-2xl font-serif font-bold mb-3">
+                  Place details
+                </p>
+                <p className="text-sm md:text-base text-muted-foreground leading-relaxed">
                   {place.description || "No description available."}
                 </p>
-              </div>
+              </section>
 
               {/* Hours */}
               {place.hours && place.hours.length > 0 && (
-                <div>
-                  <h3 className="text-xl font-semibold mb-3 flex items-center gap-2">
-                    <Clock className="h-5 w-5" />
-                    Hours
-                  </h3>
-                  <div className="space-y-2">
+                <section>
+                  <p className="text-lg font-semibold mb-3 flex items-center gap-2">
+                    <Clock className="h-4 w-4" />
+                    Opening hours
+                  </p>
+                  <div className="rounded-2xl border bg-white divide-y">
                     {place.hours.map((hour, index) => (
                       <div
                         key={index}
-                        className="flex justify-between items-center py-2 border-b border-gray-100"
+                        className="flex justify-between items-center px-4 py-2"
                       >
-                        <span className="font-medium">{hour.day}</span>
-                        <span className="text-muted-foreground">
-                          {hour.open} - {hour.close}
+                        <span className="text-sm font-medium">{hour.day}</span>
+                        <span className="text-xs text-muted-foreground">
+                          {hour.open} – {hour.close}
                         </span>
                       </div>
                     ))}
-                    {place.openNow !== undefined && (
-                      <div className="mt-3">
-                        <Badge
-                          variant={place.openNow ? "default" : "secondary"}
-                        >
-                          {place.openNow ? "Open Now" : "Closed"}
-                        </Badge>
-                      </div>
-                    )}
                   </div>
-                </div>
+                  {place.openNow !== undefined && (
+                    <div className="mt-3">
+                      <Badge variant={place.openNow ? "default" : "secondary"}>
+                        {place.openNow ? "Open now" : "Currently closed"}
+                      </Badge>
+                    </div>
+                  )}
+                </section>
               )}
 
               {/* Amenities */}
               {place.amenities && place.amenities.length > 0 && (
-                <div>
-                  <h3 className="text-xl font-semibold mb-3">Amenities</h3>
+                <section>
+                  <p className="text-lg font-semibold mb-3">Amenities</p>
                   <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
                     {place.amenities.map((amenity, index) => (
                       <div
@@ -236,13 +282,13 @@ const PlaceDetails = () => {
                       </div>
                     ))}
                   </div>
-                </div>
+                </section>
               )}
 
               {/* Tags */}
               {place.tags && place.tags.length > 0 && (
-                <div>
-                  <h3 className="text-xl font-semibold mb-3">Tags</h3>
+                <section>
+                  <h3 className="text-lg font-semibold mb-3">Tags</h3>
                   <div className="flex flex-wrap gap-2">
                     {place.tags.map((tag, index) => (
                       <Badge key={index} variant="outline">
@@ -250,78 +296,74 @@ const PlaceDetails = () => {
                       </Badge>
                     ))}
                   </div>
-                </div>
+                </section>
               )}
             </div>
 
-            {/* Right Column - Sidebar */}
-            <div className="md:col-span-1">
-              <div className="sticky top-24 space-y-6">
-                {/* Contact Info Card */}
-                <div className="border rounded-2xl p-6 space-y-4">
-                  <h3 className="text-xl font-semibold">Contact Information</h3>
-
-                  {place.phone && (
-                    <div className="flex items-center gap-3">
-                      <Phone className="h-5 w-5 text-muted-foreground" />
-                      <a
-                        href={`tel:${place.phone}`}
-                        className="text-primary hover:underline"
-                      >
-                        {place.phone}
-                      </a>
-                    </div>
-                  )}
-
-                  {place.website && (
-                    <div className="flex items-center gap-3">
-                      <Globe className="h-5 w-5 text-muted-foreground" />
-                      <a
-                        href={place.website}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-primary hover:underline truncate"
-                      >
-                        Visit Website
-                      </a>
-                    </div>
-                  )}
-
-                  {place.coordinates && (
-                    <div className="pt-4 border-t">
-                      <Button
-                        variant="outline"
-                        className="w-full"
-                        onClick={() => {
-                          const url = `https://www.google.com/maps?q=${place.coordinates.lat},${place.coordinates.lng}`;
-                          window.open(url, "_blank");
-                        }}
-                      >
-                        <MapPin className="h-4 w-4 mr-2" />
-                        View on Map
-                      </Button>
-                    </div>
-                  )}
-                </div>
-
-                {/* Booking Card */}
-                {place.priceLevel && (
-                  <div className="border rounded-2xl p-6 space-y-4">
-                    <div>
-                      <p className="text-2xl font-bold mb-1">
+            {/* Right: reservation / contact card */}
+            <aside>
+              <div className="sticky top-24 space-y-4">
+                <div className="rounded-3xl bg-white shadow-md border p-6 space-y-4">
+                  <p className="text-xl font-semibold mb-2">
+                    Make a reservation
+                  </p>
+                  {place.priceLevel && (
+                    <div className="mb-2">
+                      <p className="text-2xl font-bold">
                         {getPrice(place.priceLevel)}
                       </p>
-                      <p className="text-sm text-muted-foreground">
-                        Price for 2 nights
+                      <p className="text-xs text-muted-foreground">
+                        Approximate price for 2 people
                       </p>
                     </div>
-                    <Button className="w-full" size="lg">
-                      Book Now
-                    </Button>
+                  )}
+                  <div className="space-y-3 text-sm">
+                    {place.phone && (
+                      <div className="flex items-center gap-2">
+                        <Phone className="h-4 w-4 text-muted-foreground" />
+                        <a
+                          href={`tel:${place.phone}`}
+                          className="text-primary hover:underline"
+                        >
+                          {place.phone}
+                        </a>
+                      </div>
+                    )}
+                    {place.website && (
+                      <div className="flex items-center gap-2">
+                        <Globe className="h-4 w-4 text-muted-foreground" />
+                        <a
+                          href={place.website}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-primary hover:underline truncate"
+                        >
+                          Visit website
+                        </a>
+                      </div>
+                    )}
+                    {place.coordinates && (
+                      <div className="pt-2">
+                        <Button
+                          variant="outline"
+                          className="w-full"
+                          onClick={() => {
+                            const url = `https://www.google.com/maps?q=${place.coordinates.lat},${place.coordinates.lng}`;
+                            window.open(url, "_blank");
+                          }}
+                        >
+                          <MapPin className="h-4 w-4 mr-2" />
+                          View on map
+                        </Button>
+                      </div>
+                    )}
                   </div>
-                )}
+                  <Button className="w-full mt-4" size="lg">
+                    Send request
+                  </Button>
+                </div>
               </div>
-            </div>
+            </aside>
           </div>
         </div>
       </div>
