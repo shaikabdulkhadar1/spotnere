@@ -123,7 +123,7 @@ const PlaceDetails = () => {
                 <Heart
                   className={cn(
                     "h-5 w-5",
-                    isFavorite && "fill-red-500 text-red-500"
+                    isFavorite && "fill-destructive text-destructive"
                   )}
                 />
               </Button>
@@ -135,7 +135,7 @@ const PlaceDetails = () => {
 
           {/* Title + location */}
           <div className="mb-6 space-y-2">
-            <p className="text-3xl md:text-4xl font-serif font-bold">
+            <p className="text-3xl md:text-4xl font-serif font-bold text-foreground">
               {place.name}
             </p>
             <div className="flex items-center gap-2 text-muted-foreground text-sm">
@@ -161,7 +161,7 @@ const PlaceDetails = () => {
           </div>
 
           {/* Trust + stats section */}
-          <div className="mb-8 space-y-4 rounded-3xl border bg-white/90 shadow-md px-4 py-4 md:px-6 md:py-5">
+          <div className="mb-8 space-y-4 rounded-3xl border bg-background/90 shadow-md px-4 py-4 md:px-6 md:py-5">
             {/* Trust badges row */}
             <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
               <div className="flex items-center gap-2 rounded-full border border-border bg-muted/40 px-4 py-2 shadow-sm">
@@ -187,7 +187,7 @@ const PlaceDetails = () => {
             </div>
 
             {/* Stats row */}
-            <div className="rounded-2xl bg-white/80 mt-2 grid grid-cols-2 md:grid-cols-4 divide-y md:divide-y-0 md:divide-x divide-border">
+            <div className="rounded-2xl bg-background/80 mt-2 grid grid-cols-2 md:grid-cols-4 divide-y md:divide-y-0 md:divide-x divide-border">
               <div className="flex items-center gap-3 py-3 md:px-4 px-3">
                 <Users className="h-5 w-5 text-primary" />
                 <div>
@@ -229,7 +229,7 @@ const PlaceDetails = () => {
             <div className="space-y-8">
               {/* Description */}
               <section>
-                <p className="text-xl md:text-2xl font-serif font-bold mb-3">
+                <p className="text-xl md:text-2xl font-serif font-bold mb-3 text-foreground">
                   Place details
                 </p>
                 <p className="text-sm md:text-base text-muted-foreground leading-relaxed">
@@ -240,11 +240,11 @@ const PlaceDetails = () => {
               {/* Hours */}
               {place.hours && place.hours.length > 0 && (
                 <section>
-                  <p className="text-lg font-semibold mb-3 flex items-center gap-2">
+                  <p className="text-lg font-semibold mb-3 flex items-center gap-2 text-foreground">
                     <Clock className="h-4 w-4" />
                     Opening hours
                   </p>
-                  <div className="rounded-2xl border bg-white divide-y">
+                  <div className="rounded-2xl border bg-background divide-y">
                     {place.hours.map((hour, index) => (
                       <div
                         key={index}
@@ -270,7 +270,9 @@ const PlaceDetails = () => {
               {/* Amenities */}
               {place.amenities && place.amenities.length > 0 && (
                 <section>
-                  <p className="text-lg font-semibold mb-3">Amenities</p>
+                  <p className="text-lg font-semibold mb-3 text-foreground">
+                    Amenities
+                  </p>
                   <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
                     {place.amenities.map((amenity, index) => (
                       <div
@@ -288,7 +290,9 @@ const PlaceDetails = () => {
               {/* Tags */}
               {place.tags && place.tags.length > 0 && (
                 <section>
-                  <h3 className="text-lg font-semibold mb-3">Tags</h3>
+                  <h3 className="text-lg font-semibold mb-3 text-foreground">
+                    Tags
+                  </h3>
                   <div className="flex flex-wrap gap-2">
                     {place.tags.map((tag, index) => (
                       <Badge key={index} variant="outline">
@@ -303,8 +307,8 @@ const PlaceDetails = () => {
             {/* Right: reservation / contact card */}
             <aside>
               <div className="sticky top-24 space-y-4">
-                <div className="rounded-3xl bg-white shadow-md border p-6 space-y-4">
-                  <p className="text-xl font-semibold mb-2">
+                <div className="rounded-3xl bg-background shadow-md border p-6 space-y-4">
+                  <p className="text-xl font-semibold mb-2 text-foreground">
                     Make a reservation
                   </p>
                   {place.priceLevel && (

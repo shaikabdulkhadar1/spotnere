@@ -80,7 +80,7 @@ const PlacesCarousel: React.FC<PlacesCarouselProps> = ({
   // Skeleton card component
   const SkeletonCard = () => (
     <div className="flex-shrink-0 w-[170px] md:w-[180px]">
-      <div className="relative rounded-xl overflow-hidden bg-white shadow-md border">
+      <div className="relative rounded-xl overflow-hidden bg-background shadow-md border">
         {/* Image Skeleton */}
         <Skeleton className="h-[140px] md:h-[150px] w-full rounded-t-xl" />
 
@@ -111,7 +111,7 @@ const PlacesCarousel: React.FC<PlacesCarouselProps> = ({
         {/* Header */}
         <div className="flex items-center justify-between mb-4">
           <div>
-            <p className="text-xl md:text-2xl font-serif font-bold mb-0.5">
+            <p className="text-xl md:text-2xl font-serif font-bold mb-0.5 text-foreground">
               {title}
             </p>
             {subtitle && (
@@ -177,7 +177,7 @@ const PlacesCarousel: React.FC<PlacesCarouselProps> = ({
                       onClick={() => navigate(`/place/${place.id}`)}
                       className="flex-shrink-0 w-[170px] md:w-[180px] group cursor-pointer border shadow-md rounded-xl overflow-hidden"
                     >
-                      <div className="relative rounded-xl overflow-hidden bg-white shadow-sm hover:shadow-lg transition-all duration-300">
+                      <div className="relative rounded-xl overflow-hidden bg-background shadow-sm hover:shadow-lg transition-all duration-300">
                         {/* Image */}
                         <div className="relative h-[140px] md:h-[150px] overflow-hidden">
                           <img
@@ -191,7 +191,7 @@ const PlacesCarousel: React.FC<PlacesCarouselProps> = ({
                           {/* Badges and Icons */}
                           <div className="absolute top-1.5 left-1.5 flex items-center gap-1">
                             {isGuestFavorite && (
-                              <Badge className="bg-white text-gray-900 font-semibold text-[9px] px-1 py-0.5">
+                              <Badge className="bg-background text-foreground font-semibold text-[9px] px-1 py-0.5">
                                 Guest favorite
                               </Badge>
                             )}
@@ -206,8 +206,8 @@ const PlacesCarousel: React.FC<PlacesCarouselProps> = ({
                             className={cn(
                               "absolute top-1.5 right-1.5 p-1 rounded-full transition-all duration-200 z-10",
                               isFavorite
-                                ? "bg-red-500 text-white"
-                                : "bg-white/90 text-gray-700 hover:bg-white"
+                                ? "bg-destructive text-destructive-foreground"
+                                : "bg-background/90 text-foreground hover:bg-background"
                             )}
                           >
                             <Heart
@@ -293,9 +293,9 @@ const PlacesCarousel: React.FC<PlacesCarouselProps> = ({
 
           {/* Mobile Navigation Hints */}
           <div className="md:hidden flex justify-center gap-2 mt-4">
-            <div className="h-1 w-1 rounded-full bg-gray-300" />
-            <div className="h-1 w-1 rounded-full bg-gray-300" />
-            <div className="h-1 w-1 rounded-full bg-gray-300" />
+            <div className="h-1 w-1 rounded-full bg-muted-foreground" />
+            <div className="h-1 w-1 rounded-full bg-muted-foreground" />
+            <div className="h-1 w-1 rounded-full bg-muted-foreground" />
           </div>
         </div>
       </div>

@@ -63,7 +63,7 @@ const Navbar = () => {
       className={cn(
         "fixed top-0 left-0 right-0 z-50 transition-all duration-300",
         scrolled
-          ? "bg-white/80 backdrop-blur-md shadow-md py-2"
+          ? "bg-background/80 backdrop-blur-md shadow-md py-2"
           : "bg-transparent py-4"
       )}
     >
@@ -126,13 +126,13 @@ const Navbar = () => {
                     placeholder="Search destinations..."
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    className="w-full h-[42px] pr-10 bg-white border-gray-200 rounded-full shadow-sm focus:shadow-md transition-shadow focus-visible:ring-2 focus-visible:ring-primary/20"
+                    className="w-full h-[42px] pr-10 bg-background border-border rounded-full shadow-sm focus:shadow-md transition-shadow focus-visible:ring-2 focus-visible:ring-primary/20"
                   />
-                  <Search className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 pointer-events-none" />
+                  <Search className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
                 </div>
                 <Button
                   type="submit"
-                  className="h-[42px] px-6 rounded-full bg-primary hover:bg-primary/90 text-white shrink-0"
+                  className="h-[42px] px-6 rounded-full bg-primary hover:bg-primary/90 text-primary-foreground shrink-0"
                 >
                   Search
                 </Button>
@@ -151,7 +151,7 @@ const Navbar = () => {
               type="button"
               onClick={() => setIsProfileOpen((o) => !o)}
               className={[
-                "flex items-center gap-2 rounded-full border border-gray-200 bg-white px-3 h-[42px]",
+                "flex items-center gap-2 rounded-full border border-border bg-background px-3 h-[42px]",
                 "shadow-sm transition-all duration-150 hover:shadow-md hover:-translate-y-[1px]",
                 "active:scale-95",
               ].join(" ")}
@@ -159,7 +159,7 @@ const Navbar = () => {
               {/* Hamburger / menu icon */}
               <svg
                 xmlns="http://www.w3.org/2000/svg"
-                className="h-4 w-4 text-gray-700"
+                className="h-4 w-4 text-foreground"
                 fill="none"
                 viewBox="0 0 24 24"
                 stroke="currentColor"
@@ -172,7 +172,7 @@ const Navbar = () => {
                 />
               </svg>
               {/* Avatar */}
-              <span className="flex h-7 w-7 items-center justify-center overflow-hidden rounded-full bg-gray-500 text-xs font-semibold text-white">
+              <span className="flex h-7 w-7 items-center justify-center overflow-hidden rounded-full bg-primary text-xs font-semibold text-primary-foreground">
                 <span>AK</span>
               </span>
             </button>
@@ -181,21 +181,21 @@ const Navbar = () => {
             {isProfileOpen && (
               <div
                 className={[
-                  "absolute right-0 top-full mt-2 w-60 origin-top-right rounded-2xl border border-gray-200 bg-white shadow-xl",
+                  "absolute right-0 top-full mt-2 w-60 origin-top-right rounded-2xl border border-border bg-background shadow-xl",
                   "transition-all duration-150 ease-out z-50",
                   "scale-100 opacity-100 translate-y-0",
                 ].join(" ")}
               >
-                <div className="py-2 text-sm text-gray-800">
+                <div className="py-2 text-sm text-foreground">
                   <button
                     type="button"
                     onClick={() => {
                       navigate("/favorites");
                       setIsProfileOpen(false);
                     }}
-                    className="flex items-center gap-3 w-full px-4 py-2.5 text-left hover:bg-gray-100 active:scale-[0.99] transition-colors"
+                    className="flex items-center gap-3 w-full px-4 py-2.5 text-left hover:bg-muted active:scale-[0.99] transition-colors"
                   >
-                    <Heart className="h-4 w-4 text-gray-600" />
+                    <Heart className="h-4 w-4 text-muted-foreground" />
                     <span>Favorites</span>
                   </button>
                   <button
@@ -204,29 +204,29 @@ const Navbar = () => {
                       navigate("/bookings");
                       setIsProfileOpen(false);
                     }}
-                    className="flex items-center gap-3 w-full px-4 py-2.5 text-left hover:bg-gray-100 active:scale-[0.99] transition-colors"
+                    className="flex items-center gap-3 w-full px-4 py-2.5 text-left hover:bg-muted active:scale-[0.99] transition-colors"
                   >
-                    <Calendar className="h-4 w-4 text-gray-600" />
+                    <Calendar className="h-4 w-4 text-muted-foreground" />
                     <span>Your Bookings</span>
                   </button>
-                  <div className="my-1 border-t border-gray-200" />
+                  <div className="my-1 border-t border-border" />
                   <button
                     type="button"
-                    className="block w-full px-4 py-2.5 text-left  hover:bg-gray-100 active:scale-[0.99] transition-colors"
+                    className="block w-full px-4 py-2.5 text-left  hover:bg-muted active:scale-[0.99] transition-colors"
                   >
                     Sign up
                   </button>
                   <button
                     type="button"
-                    className="block w-full px-4 py-2.5 text-left hover:bg-gray-100 active:scale-[0.99] transition-colors"
+                    className="block w-full px-4 py-2.5 text-left hover:bg-muted active:scale-[0.99] transition-colors"
                   >
                     Log in
                   </button>
-                  <div className="my-1 border-t border-gray-200" />
+                  <div className="my-1 border-t border-border" />
 
                   <button
                     type="button"
-                    className="block w-full px-4 py-2.5 text-left hover:bg-gray-100 active:scale-[0.99] transition-colors"
+                    className="block w-full px-4 py-2.5 text-left hover:bg-muted active:scale-[0.99] transition-colors"
                   >
                     Help Center
                   </button>

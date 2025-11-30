@@ -22,7 +22,7 @@ const Footer = () => {
           </div>
 
           <div>
-            <p className="font-semibold mb-4">Company</p>
+            <p className="font-semibold mb-4 text-foreground">Company</p>
             <ul className="space-y-2 text-sm">
               <li>
                 <Link

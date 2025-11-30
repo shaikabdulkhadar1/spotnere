@@ -42,7 +42,7 @@ const Contact = () => {
       <div className="pt-32 pb-12 px-4">
         <div className="container mx-auto max-w-5xl">
           <div className="text-center mb-12 animate-fade-up">
-            <h1 className="text-5xl md:text-6xl font-serif font-bold mb-6">
+            <h1 className="text-5xl md:text-6xl font-serif font-bold mb-6 text-foreground">
               Get in Touch
             </h1>
             <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
@@ -58,7 +58,7 @@ const Contact = () => {
               className="animate-fade-up"
               style={{ animationDelay: "0.1s" }}
             >
-              <p className="text-2xl font-serif font-bold mb-6">
+              <p className="text-2xl font-serif font-bold mb-6 text-foreground">
                 Send us a message
               </p>
 
@@ -144,7 +144,9 @@ const Contact = () => {
                 <div className="w-12 h-12 bg-primary/10 rounded-xl flex items-center justify-center mb-4 transition-transform group-hover:scale-110">
                   <Mail className="w-6 h-6 text-primary" />
                 </div>
-                <p className="text-xl font-serif font-semibold mb-2">Email</p>
+                <p className="text-xl font-serif font-semibold mb-2 text-foreground">
+                  Email
+                </p>
                 <p className="text-muted-foreground mb-2">
                   For general inquiries and support
                 </p>
@@ -160,7 +162,9 @@ const Contact = () => {
                 <div className="w-12 h-12 bg-primary/10 rounded-xl flex items-center justify-center mb-4 transition-transform group-hover:scale-110">
                   <Phone className="w-6 h-6 text-primary" />
                 </div>
-                <p className="text-xl font-serif font-semibold mb-2">Call Us</p>
+                <p className="text-xl font-serif font-semibold mb-2 text-foreground">
+                  Call Us
+                </p>
                 <p className="text-muted-foreground mb-2">
                   Own a business? Get listed on Spotnere
                 </p>
@@ -173,7 +177,7 @@ const Contact = () => {
                 <div className="w-12 h-12 bg-primary/10 rounded-xl flex items-center justify-center mb-4 transition-transform group-hover:scale-110">
                   <MapPin className="w-6 h-6 text-primary" />
                 </div>
-                <p className="text-xl font-serif font-semibold mb-2">
+                <p className="text-xl font-serif font-semibold mb-2 text-foreground">
                   Meet us at our office
                 </p>
                 <p className="text-muted-foreground mb-2">
@@ -185,7 +189,7 @@ const Contact = () => {
               </GlassCard>
 
               <GlassCard hover={false} className="bg-primary/5">
-                <p className="text-xl font-serif font-semibold mb-3">
+                <p className="text-xl font-serif font-semibold mb-3 text-foreground">
                   Follow Us
                 </p>
                 <p className="text-muted-foreground mb-4">

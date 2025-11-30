@@ -9,126 +9,163 @@ All colors MUST be HSL.
 @layer base {
   :root {
     /* Spotnere Design System - Light Mode */
-    --background: 0 0% 100%; /* soft-bg */
-    --foreground: 240 10% 3.9%; /* ink */
+    /* New Color Palette */
+    /* Mint Green: #00B894, Blurple: #4834D4, Lemon Sorbet: #F9CA24 */
+    /* Night Blue: #130F40, White: #FFFFFF */
 
-    --card: 0 0% 100%;
-    --card-foreground: 215 57% 11%;
+    --background: 0 0% 95%; /* Light Gray page background */
+    --foreground: 253 54% 16%; /* Night Blue #130F40 */
 
-    --popover: 0 0% 100%;
-    --popover-foreground: 215 57% 11%;
+    --card: 0 0% 100%; /* White #FFFFFF */
+    --card-foreground: 253 54% 16%; /* Night Blue #130F40 */
 
-    --primary: 220 92% 57%; /* accent blue */
-    --primary-foreground: 0 0% 100%;
+    --popover: 0 0% 100%; /* White #FFFFFF */
+    --popover-foreground: 253 54% 16%; /* Night Blue #130F40 */
 
-    --secondary: 215 15% 59%; /* muted */
-    --secondary-foreground: 215 57% 11%;
+    --primary: 252 64% 52%; /* Blurple #4834D4 */
+    --primary-foreground: 0 0% 100%; /* White #FFFFFF */
 
-    --muted: 240 4.8% 95.9%;
-    --muted-foreground: 240 3.8% 46.1%;
+    --secondary: 174 100% 36%; /* Mint Green #00B894 */
+    --secondary-foreground: 0 0% 100%; /* White #FFFFFF */
 
-    --accent: 220 92% 57%;
-    --accent-foreground: 0 0% 100%;
+    --muted: 0 0% 92%; /* Light Gray */
+    --muted-foreground: 253 54% 25%; /* Medium Night Blue */
 
-    --destructive: 0 84% 60%;
-    --destructive-foreground: 0 0% 100%;
+    --accent: 47 94% 53%; /* Lemon Sorbet #F9CA24 */
+    --accent-foreground: 253 54% 16%; /* Night Blue #130F40 */
 
-    --border: 215 20% 88%;
-    --input: 215 20% 88%;
-    --ring: 220 92% 57%;
+    --destructive: 0 84% 60%; /* Red for errors */
+    --destructive-foreground: 0 0% 100%; /* White #FFFFFF */
+
+    --border: 174 100% 36%; /* Mint Green #00B894 */
+    --input: 0 0% 90%; /* Light Gray border */
+    --ring: 252 64% 52%; /* Blurple #4834D4 */
 
     --radius: 0.75rem; /* rounded-xl */
 
     /* Glass morphism tokens */
-    --glass: 0 0% 100% / 0.12;
-    --glass-stroke: 0 0% 100% / 0.35;
+    --glass: 0 0% 100% / 0.35; /* Light glass rgba(255, 255, 255, 0.35) */
+    --glass-stroke: 0 0% 100% / 0.18; /* Glass border rgba(255, 255, 255, 0.18) */
     --glass-blur: 16px;
 
+    /* Shadows */
+    --shadow-soft: 0 0 0 / 0.08; /* rgba(0, 0, 0, 0.08) */
+    --shadow-strong: 0 0 0 / 0.18; /* rgba(0, 0, 0, 0.18) */
+
     /* Gradients */
-    --gradient-hero: linear-gradient(
-      135deg,
-      hsl(220, 92%, 57%),
-      hsl(260, 85%, 65%)
-    );
+    --gradient-hero: linear-gradient(135deg, #4834d4, #00b894);
     --gradient-subtle: linear-gradient(
       180deg,
-      hsl(220, 14%, 97%),
-      hsl(220, 20%, 93%)
+      hsl(0, 0%, 95%),
+      /* Light Gray */ hsl(0, 0%, 92%) /* Lighter Gray */
+    );
+    --gradient-primary: linear-gradient(135deg, #4834d4, #00b894);
+    --gradient-card-glow: linear-gradient(
+      145deg,
+      rgba(255, 255, 255, 0.4),
+      rgba(255, 255, 255, 0.1)
     );
 
     /* Transitions */
     --transition-smooth: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
     --transition-lift: transform 0.2s ease, box-shadow 0.2s ease;
 
-    --sidebar-background: 0 0% 98%;
-    --sidebar-foreground: 240 5.3% 26.1%;
-    --sidebar-primary: 240 5.9% 10%;
-    --sidebar-primary-foreground: 0 0% 98%;
-    --sidebar-accent: 240 4.8% 95.9%;
-    --sidebar-accent-foreground: 240 5.9% 10%;
-    --sidebar-border: 220 13% 91%;
-    --sidebar-ring: 217.2 91.2% 59.8%;
-    --brand: 266 100% 50%;
-    --brand-foreground: 270 100% 98%;
+    /* Additional UI variables */
+    --card-bg: 0 0% 100%; /* White #FFFFFF */
+    --popover-bg: 0 0% 100%; /* White #FFFFFF */
+    --glass-bg: 0 0% 100% / 0.35; /* rgba(255, 255, 255, 0.35) */
+    --glass-border: 0 0% 100% / 0.18; /* rgba(255, 255, 255, 0.18) */
+
+    --sidebar-background: 0 0% 92%; /* Light Gray */
+    --sidebar-foreground: 253 54% 16%; /* Night Blue #130F40 */
+    --sidebar-primary: 252 64% 52%; /* Blurple #4834D4 */
+    --sidebar-primary-foreground: 0 0% 100%; /* White #FFFFFF */
+    --sidebar-accent: 0 0% 100%; /* White #FFFFFF */
+    --sidebar-accent-foreground: 253 54% 16%; /* Night Blue #130F40 */
+    --sidebar-border: 174 100% 36%; /* Mint Green #00B894 */
+    --sidebar-ring: 252 64% 52%; /* Blurple #4834D4 */
+    --brand: 174 100% 36%; /* Mint Green #00B894 */
+    --brand-foreground: 0 0% 100%; /* White #FFFFFF */
+
+    /* Call to Action color */
+    --cta: 252 64% 52%; /* Blurple #4834D4 */
+    --cta-foreground: 0 0% 100%; /* White #FFFFFF */
   }
 
   .dark {
     /* Spotnere Design System - Dark Mode */
-    --background: 240 10% 3.9%; /* dark ink */
-    --foreground: 0 0% 98%;
+    --background: 253 54% 12%; /* Darker Night Blue */
+    --foreground: 0 0% 100%; /* White #FFFFFF */
 
-    --card: 215 50% 14%;
-    --card-foreground: 0 0% 98%;
+    --card: 253 54% 18%; /* Slightly lighter night blue */
+    --card-foreground: 0 0% 100%; /* White #FFFFFF */
 
-    --popover: 215 50% 14%;
-    --popover-foreground: 0 0% 98%;
+    --popover: 253 54% 18%; /* Slightly lighter night blue */
+    --popover-foreground: 0 0% 100%; /* White #FFFFFF */
 
-    --primary: 220 92% 57%; /* accent blue */
-    --primary-foreground: 0 0% 100%;
+    --primary: 252 64% 52%; /* Blurple #4834D4 */
+    --primary-foreground: 0 0% 100%; /* White #FFFFFF */
 
-    --secondary: 215 15% 59%; /* muted */
-    --secondary-foreground: 0 0% 98%;
+    --secondary: 174 100% 36%; /* Mint Green #00B894 */
+    --secondary-foreground: 0 0% 100%; /* White #FFFFFF */
 
-    --muted: 240 3.7% 15.9%;
-    --muted-foreground: 240 5% 64.9%;
+    --muted: 253 54% 18%; /* Slightly lighter night blue */
+    --muted-foreground: 0 0% 85%; /* Lighter White */
 
-    --accent: 220 92% 57%;
-    --accent-foreground: 0 0% 100%;
+    --accent: 47 94% 53%; /* Lemon Sorbet #F9CA24 */
+    --accent-foreground: 253 54% 12%; /* Darker Night Blue */
 
-    --destructive: 0 84% 60%;
-    --destructive-foreground: 0 0% 100%;
+    --destructive: 0 84% 60%; /* Red for errors */
+    --destructive-foreground: 0 0% 100%; /* White #FFFFFF */
 
-    --border: 215 30% 20%;
-    --input: 215 30% 20%;
-    --ring: 220 92% 57%;
+    --border: 174 100% 36%; /* Mint Green #00B894 */
+    --input: 253 54% 25%; /* Medium night blue */
+    --ring: 252 64% 52%; /* Blurple #4834D4 */
 
     /* Glass morphism tokens - inverted for dark */
     --glass: 0 0% 0% / 0.25;
-    --glass-stroke: 0 0% 100% / 0.15;
+    --glass-stroke: 255 255 255 / 0.15;
     --glass-blur: 20px;
 
+    /* Shadows */
+    --shadow-soft: 0 0 0 / 0.15;
+    --shadow-strong: 0 0 0 / 0.3;
+
     /* Gradients */
-    --gradient-hero: linear-gradient(
-      135deg,
-      hsl(220, 92%, 47%),
-      hsl(260, 85%, 55%)
-    );
+    --gradient-hero: linear-gradient(135deg, #4834d4, #00b894);
     --gradient-subtle: linear-gradient(
       180deg,
-      hsl(215, 57%, 11%),
-      hsl(215, 50%, 8%)
+      hsl(253, 54%, 12%),
+      /* Darker Night Blue */ hsl(253, 54%, 18%)
+        /* Slightly lighter night blue */
+    );
+    --gradient-primary: linear-gradient(135deg, #4834d4, #00b894);
+    --gradient-card-glow: linear-gradient(
+      145deg,
+      rgba(255, 255, 255, 0.1),
+      rgba(255, 255, 255, 0.05)
     );
 
-    --sidebar-background: 240 5.9% 10%;
-    --sidebar-foreground: 240 4.8% 95.9%;
-    --sidebar-primary: 224.3 76.3% 48%;
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 240 3.7% 15.9%;
-    --sidebar-accent-foreground: 240 4.8% 95.9%;
-    --sidebar-border: 240 3.7% 15.9%;
-    --sidebar-ring: 217.2 91.2% 59.8%;
-    --brand: 266 70% 60%;
-    --brand-foreground: 270 100% 98%;
+    /* Additional UI variables */
+    --card-bg: 253 54% 18%; /* Slightly lighter night blue */
+    --popover-bg: 253 54% 18%; /* Slightly lighter night blue */
+    --glass-bg: 0 0% 0% / 0.25;
+    --glass-border: 255 255 255 / 0.15;
+
+    --sidebar-background: 253 54% 18%; /* Slightly lighter night blue */
+    --sidebar-foreground: 0 0% 100%; /* White #FFFFFF */
+    --sidebar-primary: 252 64% 52%; /* Blurple #4834D4 */
+    --sidebar-primary-foreground: 0 0% 100%; /* White #FFFFFF */
+    --sidebar-accent: 253 54% 12%; /* Darker Night Blue */
+    --sidebar-accent-foreground: 0 0% 100%; /* White #FFFFFF */
+    --sidebar-border: 174 100% 36%; /* Mint Green #00B894 */
+    --sidebar-ring: 252 64% 52%; /* Blurple #4834D4 */
+    --brand: 174 100% 36%; /* Mint Green #00B894 */
+    --brand-foreground: 0 0% 100%; /* White #FFFFFF */
+
+    /* Call to Action color */
+    --cta: 252 64% 52%; /* Blurple #4834D4 */
+    --cta-foreground: 0 0% 100%; /* White #FFFFFF */
   }
   .theme {
     --animate-marquee: marquee var(--duration) linear infinite;
@@ -206,6 +243,17 @@ All colors MUST be HSL.
   .scrollbar-hide::-webkit-scrollbar {
     display: none;
   }
+
+  /* Floating animation */
+  @keyframes float {
+    0%,
+    100% {
+      transform: translateY(0px);
+    }
+    50% {
+      transform: translateY(-20px);
+    }
+  }
 }
 
 /* ---break---
@@ -230,6 +278,16 @@ All colors MUST be HSL.
     }
     to {
       transform: translateX(calc(-50% - var(--gap)));
+    }
+  }
+
+  @keyframes float {
+    0%,
+    100% {
+      transform: translateY(0px);
+    }
+    50% {
+      transform: translateY(-20px);
     }
   }
 }

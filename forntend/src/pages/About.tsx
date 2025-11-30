@@ -191,7 +191,7 @@ const About = () => {
           <section className="py-18 px-4">
             <div className="container mx-auto max-w-6xl">
               <div className="text-center mb-12">
-                <h2 className="text-4xl md:text-5xl font-serif font-bold mb-4">
+                <h2 className="text-4xl md:text-5xl font-serif font-bold mb-4 text-foreground">
                   Our Mission
                 </h2>
                 <p className="text-lg text-muted-foreground pt-8">
@@ -220,7 +220,7 @@ const About = () => {
           <section className="py-24 px-4">
             <div className="container mx-auto max-w-6xl">
               <div className="text-center mb-12">
-                <h2 className="text-4xl md:text-5xl font-serif font-bold mb-4">
+                <h2 className="text-4xl md:text-5xl font-serif font-bold mb-4 text-foreground">
                   Our Values
                 </h2>
                 <p className="text-lg text-muted-foreground">
@@ -247,7 +247,7 @@ const About = () => {
           <section className="py-24 px-4">
             <div className="container mx-auto max-w-6xl">
               <div className="text-center mb-12">
-                <h2 className="text-4xl md:text-5xl font-serif font-bold mb-4">
+                <h2 className="text-4xl md:text-5xl font-serif font-bold mb-4 text-foreground">
                   The Journey So Far
                 </h2>
                 <p className="text-lg text-muted-foreground">
@@ -268,7 +268,7 @@ const About = () => {
           <section className="py-24 px-4">
             <div className="container mx-auto max-w-8xl">
               <div className="text-center mb-12">
-                <h2 className="text-4xl md:text-5xl font-serif font-bold mb-4">
+                <h2 className="text-4xl md:text-5xl font-serif font-bold mb-4 text-foreground">
                   Meet your team
                 </h2>
                 <p className="text-lg text-muted-foreground">
