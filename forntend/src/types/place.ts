@@ -14,6 +14,7 @@ export type Place = {
   subCategory?: string;
   description: string;
   bannerImageLink: string;
+  images?: string[]; // Gallery images
   rating: number; // 0-5
   avgPrice?: number;
   priceLevel?: 1 | 2 | 3; // Computed from avgPrice for backward compatibility

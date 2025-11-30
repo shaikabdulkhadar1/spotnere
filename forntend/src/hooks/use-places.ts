@@ -34,7 +34,11 @@ export const useFeaturedPlaces = (limit: number = 10) => {
   });
 };
 
-export const useSearchPlaces = (query: string, limit?: number, enabled: boolean = true) => {
+export const useSearchPlaces = (
+  query: string,
+  limit?: number,
+  enabled: boolean = true
+) => {
   return useQuery<Place[]>({
     queryKey: ["places", "search", query, limit],
     queryFn: async () => {
@@ -57,3 +61,13 @@ export const usePlaceById = (id: string, enabled: boolean = true) => {
   });
 };
 
+export const usePlaceGallery = (placeId: string, enabled: boolean = true) => {
+  return useQuery<string[]>({
+    queryKey: ["places", placeId, "gallery"],
+    queryFn: async () => {
+      return await placesApi.getPlaceGallery(placeId);
+    },
+    enabled: enabled && !!placeId,
+    staleTime: 1000 * 60 * 5, // 5 minutes
+  });
+};

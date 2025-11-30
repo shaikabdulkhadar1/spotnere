@@ -52,6 +52,15 @@ const mapApiPlaceToPlace = (apiPlace: any): Place => {
     subCategory: apiPlace.sub_category || undefined,
     description: apiPlace.description || "",
     bannerImageLink: apiPlace.banner_image_link || "",
+    images: Array.isArray(apiPlace.images)
+      ? apiPlace.images.filter((img: any) => img && typeof img === "string")
+      : apiPlace.image_links && Array.isArray(apiPlace.image_links)
+      ? apiPlace.image_links.filter(
+          (img: any) => img && typeof img === "string"
+        )
+      : apiPlace.images && typeof apiPlace.images === "string"
+      ? [apiPlace.images]
+      : undefined,
     rating:
       apiPlace.rating !== undefined && apiPlace.rating !== null
         ? parseFloat(apiPlace.rating)
@@ -237,5 +246,46 @@ export const placesApi = {
 
     console.log("Place data received:", data.data);
     return mapApiPlaceToPlace(data.data);
+  },
+
+  /**
+   * Get gallery images for a place
+   */
+  async getPlaceGallery(placeId: string): Promise<string[]> {
+    if (!placeId) {
+      throw new Error("Place ID is required");
+    }
+
+    const url = `${API_BASE_URL}/api/places/${encodeURIComponent(
+      placeId
+    )}/gallery`;
+
+    console.log("Fetching gallery images from API:", url);
+
+    const response = await fetch(url);
+
+    if (!response.ok) {
+      if (response.status === 404) {
+        // No gallery images found, return empty array
+        return [];
+      }
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(
+        errorData.detail ||
+          errorData.message ||
+          `Failed to fetch gallery images: ${response.statusText}`
+      );
+    }
+
+    const data: ApiResponse<string[]> = await response.json();
+
+    if (!data.success) {
+      throw new Error(
+        data.error || data.message || "Failed to fetch gallery images"
+      );
+    }
+
+    console.log("Gallery images received:", data.data);
+    return data.data || [];
   },
 };

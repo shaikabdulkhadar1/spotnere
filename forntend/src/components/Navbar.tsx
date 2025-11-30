@@ -15,6 +15,9 @@ const Navbar = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const profileMenuRef = useRef<HTMLDivElement>(null);
 
+  // User login state - for now, always not logged in (will be implemented later)
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+
   useEffect(() => {
     const handleScroll = () => {
       const scrollY = window.scrollY;
@@ -173,7 +176,7 @@ const Navbar = () => {
               </svg>
               {/* Avatar */}
               <span className="flex h-7 w-7 items-center justify-center overflow-hidden rounded-full bg-primary text-xs font-semibold text-primary-foreground">
-                <span>AK</span>
+                <span>{isLoggedIn ? "AK" : "U"}</span>
               </span>
             </button>
 
@@ -187,49 +190,77 @@ const Navbar = () => {
                 ].join(" ")}
               >
                 <div className="py-2 text-sm text-foreground">
-                  <button
-                    type="button"
-                    onClick={() => {
-                      navigate("/favorites");
-                      setIsProfileOpen(false);
-                    }}
-                    className="flex items-center gap-3 w-full px-4 py-2.5 text-left hover:bg-muted active:scale-[0.99] transition-colors"
-                  >
-                    <Heart className="h-4 w-4 text-muted-foreground" />
-                    <span>Favorites</span>
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      navigate("/bookings");
-                      setIsProfileOpen(false);
-                    }}
-                    className="flex items-center gap-3 w-full px-4 py-2.5 text-left hover:bg-muted active:scale-[0.99] transition-colors"
-                  >
-                    <Calendar className="h-4 w-4 text-muted-foreground" />
-                    <span>Your Bookings</span>
-                  </button>
-                  <div className="my-1 border-t border-border" />
-                  <button
-                    type="button"
-                    className="block w-full px-4 py-2.5 text-left  hover:bg-muted active:scale-[0.99] transition-colors"
-                  >
-                    Sign up
-                  </button>
-                  <button
-                    type="button"
-                    className="block w-full px-4 py-2.5 text-left hover:bg-muted active:scale-[0.99] transition-colors"
-                  >
-                    Log in
-                  </button>
-                  <div className="my-1 border-t border-border" />
-
-                  <button
-                    type="button"
-                    className="block w-full px-4 py-2.5 text-left hover:bg-muted active:scale-[0.99] transition-colors"
-                  >
-                    Help Center
-                  </button>
+                  {!isLoggedIn ? (
+                    <>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          navigate("/login?mode=signup");
+                          setIsProfileOpen(false);
+                        }}
+                        className="flex items-center gap-3 w-full px-4 py-2.5 text-left hover:bg-muted active:scale-[0.99] transition-colors"
+                      >
+                        <span>Sign Up</span>
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          navigate("/login?mode=login");
+                          setIsProfileOpen(false);
+                        }}
+                        className="flex items-center gap-3 w-full px-4 py-2.5 text-left hover:bg-muted active:scale-[0.99] transition-colors"
+                      >
+                        <span>Log In</span>
+                      </button>
+                      <div className="my-1 border-t border-border" />
+                      <button
+                        type="button"
+                        onClick={() => {
+                          navigate("/contact");
+                          setIsProfileOpen(false);
+                        }}
+                        className="flex items-center gap-3 w-full px-4 py-2.5 text-left hover:bg-muted active:scale-[0.99] transition-colors"
+                      >
+                        <span>Contact Us</span>
+                      </button>
+                    </>
+                  ) : (
+                    <>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          navigate("/favorites");
+                          setIsProfileOpen(false);
+                        }}
+                        className="flex items-center gap-3 w-full px-4 py-2.5 text-left hover:bg-muted active:scale-[0.99] transition-colors"
+                      >
+                        <Heart className="h-4 w-4 text-muted-foreground" />
+                        <span>Favorites</span>
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          navigate("/bookings");
+                          setIsProfileOpen(false);
+                        }}
+                        className="flex items-center gap-3 w-full px-4 py-2.5 text-left hover:bg-muted active:scale-[0.99] transition-colors"
+                      >
+                        <Calendar className="h-4 w-4 text-muted-foreground" />
+                        <span>Your Bookings</span>
+                      </button>
+                      <div className="my-1 border-t border-border" />
+                      <button
+                        type="button"
+                        onClick={() => {
+                          navigate("/contact");
+                          setIsProfileOpen(false);
+                        }}
+                        className="flex items-center gap-3 w-full px-4 py-2.5 text-left hover:bg-muted active:scale-[0.99] transition-colors"
+                      >
+                        <span>Help Center</span>
+                      </button>
+                    </>
+                  )}
                 </div>
               </div>
             )}

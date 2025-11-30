@@ -136,6 +136,36 @@ async def get_place_by_id(place_id: str):
         )
 
 
+@app.get("/api/places/{place_id}/gallery")
+async def get_place_gallery(place_id: str):
+    """
+    Get all gallery images for a place from the gallery_images table.
+    Returns gallery_image_url from Supabase storage.
+    """
+    try:
+        response = (
+            supabase.table("gallery_images")
+            .select("gallery_image_url")
+            .eq("place_id", place_id)
+            .execute()
+        )
+
+        gallery_images = response.data or []
+        # Extract just the URLs
+        image_urls = [img.get("gallery_image_url") for img in gallery_images if img.get("gallery_image_url")]
+
+        return {
+            "success": True,
+            "data": image_urls,
+            "count": len(image_urls),
+        }
+    except Exception as e:
+        raise HTTPException(
+            status_code=500,
+            detail=f"Error fetching gallery images: {str(e)}",
+        )
+
+
 @app.get("/api/places/featured")
 async def get_featured_places(limit: int = Query(10, ge=1, le=50)):
     """
