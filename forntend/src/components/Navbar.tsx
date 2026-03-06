@@ -2,29 +2,22 @@ import React, { useState, useEffect, useRef } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Search, Heart, Calendar } from "lucide-react";
+import { Search, Heart, Calendar, LogOut } from "lucide-react";
 import { cn } from "@/lib/utils";
-// Replaced icon with logo image from public folder
+import { useAuth } from "@/contexts/AuthContext";
 
 const Navbar = () => {
   const [scrolled, setScrolled] = useState(false);
-  const [showSearchBar, setShowSearchBar] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const profileMenuRef = useRef<HTMLDivElement>(null);
-
-  // User login state - for now, always not logged in (will be implemented later)
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const { isLoggedIn, user, logout } = useAuth();
 
   useEffect(() => {
     const handleScroll = () => {
-      const scrollY = window.scrollY;
-      // Hero section is min-h-screen, so check if scrolled past viewport height
-      const heroHeight = window.innerHeight;
-      setScrolled(scrollY > 20);
-      setShowSearchBar(scrollY > heroHeight);
+      setScrolled(window.scrollY > 20);
     };
     window.addEventListener("scroll", handleScroll);
     // Check on mount in case page loads below hero
@@ -55,7 +48,7 @@ const Navbar = () => {
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
     if (searchQuery.trim()) {
-      navigate(`/explore?location=${encodeURIComponent(searchQuery.trim())}`);
+      navigate(`/?location=${encodeURIComponent(searchQuery.trim())}`);
     }
   };
 
@@ -67,26 +60,26 @@ const Navbar = () => {
         "fixed top-0 left-0 right-0 z-50 transition-all duration-300",
         scrolled
           ? "bg-background/80 backdrop-blur-md shadow-md py-2"
-          : "bg-transparent py-4"
+          : "bg-transparent py-4",
       )}
     >
       <div
         className={cn(
           "transition-all duration-300 w-full",
-          scrolled ? "max-w-6xl mx-auto px-4" : "container mx-auto px-4"
+          scrolled ? "max-w-6xl mx-auto px-4" : "container mx-auto px-4",
         )}
       >
         <div
           className={cn(
             "flex items-center transition-all duration-300",
-            scrolled ? "justify-between h-[42px]" : "justify-between"
+            scrolled ? "justify-between h-[42px]" : "justify-between",
           )}
         >
           <Link
             to="/"
             className={cn(
               "flex items-center gap-2 group shrink-0",
-              scrolled ? "z-10" : ""
+              scrolled ? "z-10" : "",
             )}
           >
             <img
@@ -110,18 +103,13 @@ const Navbar = () => {
               "hidden md:flex items-center transition-all duration-300",
               scrolled
                 ? "flex-1 justify-center h-[42px] px-2"
-                : "flex-1 justify-center"
+                : "flex-1 justify-center",
             )}
           >
-            {showSearchBar && (
+            {scrolled && (
               <form
                 onSubmit={handleSearch}
-                className={cn(
-                  "flex items-center gap-2 transition-all duration-300 w-full max-w-[600px]",
-                  showSearchBar
-                    ? "opacity-100 translate-y-0"
-                    : "opacity-0 translate-y-[-10px] pointer-events-none"
-                )}
+                className="flex items-center gap-2 transition-all duration-300 w-full max-w-[600px] opacity-100 translate-y-0 animate-in fade-in slide-in-from-top-2"
               >
                 <div className="flex-1 relative">
                   <Input
@@ -131,13 +119,15 @@ const Navbar = () => {
                     onChange={(e) => setSearchQuery(e.target.value)}
                     className="w-full h-[42px] pr-10 bg-background border-border rounded-full shadow-sm focus:shadow-md transition-shadow focus-visible:ring-2 focus-visible:ring-primary/20"
                   />
-                  <Search className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
                 </div>
                 <Button
                   type="submit"
                   className="h-[42px] px-6 rounded-full bg-primary hover:bg-primary/90 text-primary-foreground shrink-0"
                 >
-                  Search
+                  <Search className="h-5 w-5 text-primary-foreground" />
+                  <span className="text-primary-foreground font-semibold">
+                    Search
+                  </span>
                 </Button>
               </form>
             )}
@@ -147,7 +137,7 @@ const Navbar = () => {
             ref={profileMenuRef}
             className={cn(
               "relative shrink-0 h-full flex items-center",
-              scrolled ? "z-10" : ""
+              scrolled ? "z-10" : "",
             )}
           >
             <button
@@ -176,7 +166,11 @@ const Navbar = () => {
               </svg>
               {/* Avatar */}
               <span className="flex h-7 w-7 items-center justify-center overflow-hidden rounded-full bg-primary text-xs font-semibold text-primary-foreground">
-                <span>{isLoggedIn ? "AK" : "U"}</span>
+                <span>
+                  {isLoggedIn && user
+                    ? `${user.first_name?.[0] ?? ""}${user.last_name?.[0] ?? ""}`.toUpperCase() || user.email[0].toUpperCase()
+                    : "U"}
+                </span>
               </span>
             </button>
 
@@ -226,6 +220,18 @@ const Navbar = () => {
                     </>
                   ) : (
                     <>
+                      {user && (
+                        <div className="px-4 py-2.5 border-b border-border">
+                          <p className="font-semibold truncate">
+                            {user.first_name || user.last_name
+                              ? `${user.first_name} ${user.last_name}`.trim()
+                              : user.email}
+                          </p>
+                          <p className="text-xs text-muted-foreground truncate">
+                            {user.email}
+                          </p>
+                        </div>
+                      )}
                       <button
                         type="button"
                         onClick={() => {
@@ -258,6 +264,18 @@ const Navbar = () => {
                         className="flex items-center gap-3 w-full px-4 py-2.5 text-left hover:bg-muted active:scale-[0.99] transition-colors"
                       >
                         <span>Help Center</span>
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          logout();
+                          setIsProfileOpen(false);
+                          navigate("/");
+                        }}
+                        className="flex items-center gap-3 w-full px-4 py-2.5 text-left hover:bg-muted active:scale-[0.99] transition-colors text-destructive"
+                      >
+                        <LogOut className="h-4 w-4" />
+                        <span>Log Out</span>
                       </button>
                     </>
                   )}

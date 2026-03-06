@@ -4,8 +4,10 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { GeolocationProvider } from "@/contexts/GeolocationContext";
+import { AuthProvider } from "@/contexts/AuthContext";
+import { FavoritesProvider } from "@/contexts/FavoritesContext";
 import Index from "./pages/Index";
-import Explore from "./pages/Explore";
+import Favorites from "./pages/Favorites";
 import About from "./pages/About";
 import Contact from "./pages/Contact";
 import PlaceDetails from "./pages/PlaceDetails";
@@ -16,14 +18,16 @@ const queryClient = new QueryClient();
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
-    <GeolocationProvider>
-      <TooltipProvider>
+    <AuthProvider>
+      <FavoritesProvider>
+        <GeolocationProvider>
+          <TooltipProvider>
         <Toaster />
         <Sonner />
         <BrowserRouter>
           <Routes>
             <Route path="/" element={<Index />} />
-            <Route path="/explore" element={<Explore />} />
+            <Route path="/favorites" element={<Favorites />} />
             <Route path="/place/:id" element={<PlaceDetails />} />
             <Route path="/about" element={<About />} />
             <Route path="/contact" element={<Contact />} />
@@ -32,8 +36,10 @@ const App = () => (
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>
-      </TooltipProvider>
-    </GeolocationProvider>
+          </TooltipProvider>
+        </GeolocationProvider>
+      </FavoritesProvider>
+    </AuthProvider>
   </QueryClientProvider>
 );
 

@@ -28,7 +28,7 @@ export type Place = {
   longitude?: number;
   locationMapLink?: string;
   distanceKm?: number; // Computed field
-  hours?: Array<{ day: string; open: string; close: string }>;
+  hours?: Array<{ day: string; open: string; close: string }> | Record<string, { open: string; close: string }>;
   openNow?: boolean; // Computed field
   amenities?: string[];
   tags?: string[]; // Optional - not in schema but used in components

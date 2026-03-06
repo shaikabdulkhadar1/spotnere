@@ -15,15 +15,15 @@ import {
 } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
 import { useGeolocation } from "@/contexts/GeolocationContext";
+import { useAuth } from "@/contexts/AuthContext";
+import { authApi } from "@/lib/api";
 import {
   Mail,
   Lock,
   User,
-  Phone,
   MapPin,
   Home,
   ChevronDown,
-  Search,
 } from "lucide-react";
 import {
   Popover,
@@ -44,6 +44,7 @@ const Login = () => {
   const [searchParams] = useSearchParams();
   const { toast } = useToast();
   const { country: userCountry } = useGeolocation();
+  const { login } = useAuth();
 
   // Determine initial mode from URL parameter
   const initialMode = searchParams.get("mode") === "signup" ? false : true;
@@ -435,16 +436,23 @@ const Login = () => {
     e.preventDefault();
     setIsSubmitting(true);
 
-    // TODO: Implement actual login logic
-    setTimeout(() => {
+    try {
+      const response = await authApi.login(loginEmail, loginPassword);
+      login(response.token, response.user);
       toast({
         title: "Login successful!",
         description: "Welcome back to Spotnere.",
       });
-      setIsSubmitting(false);
-      // TODO: Update auth state and redirect
       navigate("/");
-    }, 1000);
+    } catch (err: any) {
+      toast({
+        title: "Login failed",
+        description: err.message || "Invalid email or password.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const handleSignUp = async (e: React.FormEvent) => {
@@ -493,28 +501,35 @@ const Login = () => {
 
     setIsSubmitting(true);
 
-    // TODO: Implement actual signup logic
-    setTimeout(() => {
+    try {
+      const response = await authApi.signup({
+        email,
+        password,
+        first_name: firstName,
+        last_name: lastName,
+        phone_number: phoneCountryCode + phoneNumber,
+        address,
+        city,
+        state,
+        country,
+        postal_code: postalCode,
+      });
+
+      login(response.token, response.user);
       toast({
         title: "Account created!",
-        description: "Welcome to Spotnere. Please log in.",
+        description: "Welcome to Spotnere.",
       });
+      navigate("/");
+    } catch (err: any) {
+      toast({
+        title: "Signup failed",
+        description: err.message || "Could not create account.",
+        variant: "destructive",
+      });
+    } finally {
       setIsSubmitting(false);
-      setIsLoginMode(true);
-      // Reset form
-      setFirstName("");
-      setLastName("");
-      setPhoneCountryCode("+1");
-      setPhoneNumber("");
-      setEmail("");
-      setPassword("");
-      setConfirmPassword("");
-      setAddress("");
-      setCountry("");
-      setState("");
-      setCity("");
-      setPostalCode("");
-    }, 1000);
+    }
   };
 
   return (

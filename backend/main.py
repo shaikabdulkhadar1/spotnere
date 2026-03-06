@@ -1,8 +1,12 @@
-from fastapi import FastAPI, HTTPException, Query
+from fastapi import FastAPI, HTTPException, Query, Depends, Header
 from fastapi.middleware.cors import CORSMiddleware
+from pydantic import BaseModel, EmailStr
 from supabase import create_client, Client
 from dotenv import load_dotenv
 import os
+import hashlib
+import jwt
+from datetime import datetime, timedelta, timezone
 
 # Load environment variables from .env file
 load_dotenv()
@@ -42,6 +46,304 @@ def get_supabase_client() -> Client:
 
 # Initialize Supabase client
 supabase: Client = get_supabase_client()
+
+
+# ── Auth config ───────────────────────────────────────────────────────────────
+
+JWT_SECRET = os.getenv("JWT_SECRET", "change-me-in-production")
+JWT_ALGORITHM = "HS256"
+JWT_EXPIRY_HOURS = 24 * 7  # 7 days
+
+
+def _hash_password(plain: str) -> str:
+    """Hash using 16-byte random salt + 10 000 iterations of SHA-256.
+    Stored as  salt_hex:hash_hex  (same scheme used by the Node.js app)."""
+    salt = os.urandom(16).hex()
+    current = plain + salt
+    for _ in range(10_000):
+        current = hashlib.sha256(current.encode()).hexdigest()
+    return f"{salt}:{current}"
+
+
+def _verify_password(plain: str, stored: str) -> bool:
+    """Verify against the salt:hash format. Falls back to plain-text
+    comparison for any legacy rows that predate hashing."""
+    if ":" not in stored:
+        return plain == stored
+    salt, stored_hash = stored.split(":", 1)
+    current = plain + salt
+    for _ in range(10_000):
+        current = hashlib.sha256(current.encode()).hexdigest()
+    return current == stored_hash
+
+
+def _create_token(user_id: str) -> str:
+    payload = {
+        "sub": user_id,
+        "exp": datetime.now(timezone.utc) + timedelta(hours=JWT_EXPIRY_HOURS),
+        "iat": datetime.now(timezone.utc),
+    }
+    return jwt.encode(payload, JWT_SECRET, algorithm=JWT_ALGORITHM)
+
+
+def _serialize_user(row: dict) -> dict:
+    """Return a frontend-safe user dict (no password_hash)."""
+    return {
+        "id": row["id"],
+        "email": row["email"],
+        "first_name": row["first_name"],
+        "last_name": row["last_name"],
+        "phone_number": row.get("phone_number"),
+        "address": row.get("address"),
+        "city": row.get("city"),
+        "state": row.get("state"),
+        "country": row.get("country"),
+        "postal_code": row.get("postal_code"),
+        "created_at": row.get("created_at"),
+    }
+
+
+# ── Auth models ──────────────────────────────────────────────────────────────
+
+class LoginRequest(BaseModel):
+    email: EmailStr
+    password: str
+
+class SignupRequest(BaseModel):
+    email: EmailStr
+    password: str
+    first_name: str
+    last_name: str
+    phone_number: str | None = None
+    address: str | None = None
+    city: str | None = None
+    state: str | None = None
+    country: str | None = None
+    postal_code: str | None = None
+
+
+# ── JWT verification dependency ──────────────────────────────────────────────
+
+async def get_current_user(authorization: str = Header(None)):
+    """Decode the Bearer JWT and fetch the user row from the users table."""
+    if not authorization or not authorization.startswith("Bearer "):
+        raise HTTPException(status_code=401, detail="Missing or invalid authorization header")
+
+    token = authorization.removeprefix("Bearer ").strip()
+    try:
+        payload = jwt.decode(token, JWT_SECRET, algorithms=[JWT_ALGORITHM])
+        user_id = payload.get("sub")
+        if not user_id:
+            raise HTTPException(status_code=401, detail="Invalid token")
+    except jwt.ExpiredSignatureError:
+        raise HTTPException(status_code=401, detail="Token has expired")
+    except jwt.InvalidTokenError:
+        raise HTTPException(status_code=401, detail="Invalid token")
+
+    try:
+        response = (
+            supabase.table("users")
+            .select("*")
+            .eq("id", user_id)
+            .single()
+            .execute()
+        )
+        if not response.data:
+            raise HTTPException(status_code=401, detail="User not found")
+        return response.data
+    except HTTPException:
+        raise
+    except Exception:
+        raise HTTPException(status_code=401, detail="Could not validate user")
+
+
+# ── Auth endpoints ───────────────────────────────────────────────────────────
+
+@app.post("/api/auth/signup")
+async def auth_signup(body: SignupRequest):
+    """Register a new user in the users table."""
+    try:
+        existing = (
+            supabase.table("users")
+            .select("id")
+            .eq("email", body.email)
+            .execute()
+        )
+        if existing.data:
+            raise HTTPException(status_code=409, detail="A user with this email already exists")
+
+        hashed = _hash_password(body.password)
+
+        insert_data = {
+            "first_name": body.first_name,
+            "last_name": body.last_name,
+            "email": body.email,
+            "password_hash": hashed,
+            "phone_number": body.phone_number,
+            "address": body.address,
+            "city": body.city,
+            "state": body.state,
+            "country": body.country,
+            "postal_code": body.postal_code,
+        }
+
+        response = (
+            supabase.table("users")
+            .insert(insert_data)
+            .execute()
+        )
+
+        if not response.data:
+            raise HTTPException(status_code=400, detail="Signup failed")
+
+        user_row = response.data[0]
+        token = _create_token(user_row["id"])
+
+        return {
+            "success": True,
+            "token": token,
+            "user": _serialize_user(user_row),
+        }
+    except HTTPException:
+        raise
+    except Exception as e:
+        error_msg = str(e)
+        if "duplicate" in error_msg.lower() or "unique" in error_msg.lower():
+            raise HTTPException(status_code=409, detail="A user with this email already exists")
+        raise HTTPException(status_code=400, detail=f"Signup failed: {error_msg}")
+
+
+@app.post("/api/auth/login")
+async def auth_login(body: LoginRequest):
+    """Authenticate against the users table and return a JWT."""
+    try:
+        response = (
+            supabase.table("users")
+            .select("*")
+            .eq("email", body.email)
+            .execute()
+        )
+
+        if not response.data:
+            raise HTTPException(status_code=401, detail="Invalid email or password")
+
+        user_row = response.data[0]
+
+        if not _verify_password(body.password, user_row["password_hash"]):
+            raise HTTPException(status_code=401, detail="Invalid email or password")
+
+        # Auto-upgrade plain-text passwords to salted SHA-256
+        if ":" not in user_row["password_hash"]:
+            supabase.table("users").update(
+                {"password_hash": _hash_password(body.password)}
+            ).eq("id", user_row["id"]).execute()
+
+        token = _create_token(user_row["id"])
+
+        return {
+            "success": True,
+            "token": token,
+            "user": _serialize_user(user_row),
+        }
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Login failed: {str(e)}")
+
+
+@app.post("/api/auth/logout")
+async def auth_logout():
+    """Logout endpoint. The frontend clears the stored token."""
+    return {"success": True, "message": "Logged out"}
+
+
+@app.get("/api/auth/me")
+async def auth_me(user=Depends(get_current_user)):
+    """Return the currently authenticated user's full profile."""
+    return {
+        "success": True,
+        "user": _serialize_user(user),
+    }
+
+
+# ── Favorites endpoints ──────────────────────────────────────────────────────
+
+class FavoriteToggleRequest(BaseModel):
+    place_id: str
+
+
+@app.get("/api/favorites")
+async def get_favorites(user=Depends(get_current_user)):
+    """Return all favorite place IDs for the logged-in user."""
+    try:
+        response = (
+            supabase.table("user_places")
+            .select("fav_place_id")
+            .eq("user_id", user["id"])
+            .execute()
+        )
+        place_ids = [row["fav_place_id"] for row in (response.data or [])]
+        return {"success": True, "data": place_ids}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error fetching favorites: {str(e)}")
+
+
+@app.get("/api/favorites/places")
+async def get_favorite_places(user=Depends(get_current_user)):
+    """Return the full place objects for the logged-in user's favorites."""
+    try:
+        fav_response = (
+            supabase.table("user_places")
+            .select("fav_place_id")
+            .eq("user_id", user["id"])
+            .execute()
+        )
+        place_ids = [row["fav_place_id"] for row in (fav_response.data or [])]
+
+        if not place_ids:
+            return {"success": True, "data": [], "count": 0}
+
+        places_response = (
+            supabase.table("places")
+            .select("*")
+            .in_("id", place_ids)
+            .eq("visible", True)
+            .execute()
+        )
+
+        return {
+            "success": True,
+            "data": places_response.data or [],
+            "count": len(places_response.data or []),
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error fetching favorite places: {str(e)}")
+
+
+@app.post("/api/favorites/toggle")
+async def toggle_favorite(body: FavoriteToggleRequest, user=Depends(get_current_user)):
+    """Add or remove a place from the user's favorites. Returns the new state."""
+    try:
+        existing = (
+            supabase.table("user_places")
+            .select("id")
+            .eq("user_id", user["id"])
+            .eq("fav_place_id", body.place_id)
+            .execute()
+        )
+
+        if existing.data:
+            supabase.table("user_places").delete().eq("user_id", user["id"]).eq("fav_place_id", body.place_id).execute()
+            return {"success": True, "favorited": False}
+        else:
+            supabase.table("user_places").insert({
+                "user_id": user["id"],
+                "fav_place_id": body.place_id,
+            }).execute()
+            return {"success": True, "favorited": True}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error toggling favorite: {str(e)}")
+
 
 @app.get("/")
 async def root():

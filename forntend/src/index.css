@@ -8,58 +8,57 @@ All colors MUST be HSL.
 
 @layer base {
   :root {
-    /* Spotnere Design System - Light Mode */
-    /* New Color Palette */
-    /* Mint Green: #00B894, Blurple: #4834D4, Lemon Sorbet: #F9CA24 */
-    /* Night Blue: #130F40, White: #FFFFFF */
+    /* Spotnere Design System - Light Mode (Forest Highlands) */
+    /* Primary: #0B57D0, Secondary: #C2E7FF, Accent: #FFB400 */
+    /* Background: #F8F9FA, Surface: #FFFFFF, Text: #1F1F1F */
 
-    --background: 0 0% 95%; /* Light Gray page background */
-    --foreground: 253 54% 16%; /* Night Blue #130F40 */
+    --background: 210 17% 98%; /* #F8F9FA */
+    --foreground: 0 0% 12%; /* #1F1F1F */
 
-    --card: 0 0% 100%; /* White #FFFFFF */
-    --card-foreground: 253 54% 16%; /* Night Blue #130F40 */
+    --card: 0 0% 100%; /* #FFFFFF */
+    --card-foreground: 0 0% 12%; /* #1F1F1F */
 
-    --popover: 0 0% 100%; /* White #FFFFFF */
-    --popover-foreground: 253 54% 16%; /* Night Blue #130F40 */
+    --popover: 0 0% 100%; /* #FFFFFF */
+    --popover-foreground: 0 0% 12%; /* #1F1F1F */
 
-    --primary: 252 64% 52%; /* Blurple #4834D4 */
-    --primary-foreground: 0 0% 100%; /* White #FFFFFF */
+    --primary: 217 90% 43%; /* #0B57D0 */
+    --primary-foreground: 0 0% 100%; /* #FFFFFF */
 
-    --secondary: 174 100% 36%; /* Mint Green #00B894 */
-    --secondary-foreground: 0 0% 100%; /* White #FFFFFF */
+    --secondary: 204 100% 88%; /* #C2E7FF */
+    --secondary-foreground: 0 0% 12%; /* #1F1F1F */
 
-    --muted: 0 0% 92%; /* Light Gray */
-    --muted-foreground: 253 54% 25%; /* Medium Night Blue */
+    --muted: 200 12% 95%; /* #F1F3F4 */
+    --muted-foreground: 213 5% 39%; /* #5F6368 */
 
-    --accent: 47 94% 53%; /* Lemon Sorbet #F9CA24 */
-    --accent-foreground: 253 54% 16%; /* Night Blue #130F40 */
+    --accent: 42 100% 50%; /* #FFB400 */
+    --accent-foreground: 0 0% 12%; /* #1F1F1F */
 
-    --destructive: 0 84% 60%; /* Red for errors */
-    --destructive-foreground: 0 0% 100%; /* White #FFFFFF */
+    --destructive: 4 71% 50%; /* #D93025 */
+    --destructive-foreground: 0 0% 100%; /* #FFFFFF */
 
-    --border: 174 100% 36%; /* Mint Green #00B894 */
-    --input: 0 0% 90%; /* Light Gray border */
-    --ring: 252 64% 52%; /* Blurple #4834D4 */
+    --border: 220 9% 87%; /* #DADCE0 */
+    --input: 220 9% 87%; /* #DADCE0 */
+    --ring: 217 90% 43%; /* #0B57D0 */
 
-    --radius: 0.75rem; /* rounded-xl */
+    --radius: 0.75rem;
 
     /* Glass morphism tokens */
-    --glass: 0 0% 100% / 0.35; /* Light glass rgba(255, 255, 255, 0.35) */
-    --glass-stroke: 0 0% 100% / 0.18; /* Glass border rgba(255, 255, 255, 0.18) */
+    --glass: 0 0% 100% / 0.35;
+    --glass-stroke: 0 0% 100% / 0.18;
     --glass-blur: 16px;
 
     /* Shadows */
-    --shadow-soft: 0 0 0 / 0.08; /* rgba(0, 0, 0, 0.08) */
-    --shadow-strong: 0 0 0 / 0.18; /* rgba(0, 0, 0, 0.18) */
+    --shadow-soft: 216 5% 25% / 0.15; /* rgba(60, 64, 67, 0.15) */
+    --shadow-strong: 216 5% 25% / 0.3;
 
     /* Gradients */
-    --gradient-hero: linear-gradient(135deg, #4834d4, #00b894);
+    --gradient-hero: linear-gradient(135deg, #0B57D0, #C2E7FF);
     --gradient-subtle: linear-gradient(
       180deg,
-      hsl(0, 0%, 95%),
-      /* Light Gray */ hsl(0, 0%, 92%) /* Lighter Gray */
+      hsl(210, 17%, 98%),
+      hsl(200, 12%, 95%)
     );
-    --gradient-primary: linear-gradient(135deg, #4834d4, #00b894);
+    --gradient-primary: linear-gradient(135deg, #0B57D0, #1A73E8);
     --gradient-card-glow: linear-gradient(
       145deg,
       rgba(255, 255, 255, 0.4),
@@ -71,75 +70,79 @@ All colors MUST be HSL.
     --transition-lift: transform 0.2s ease, box-shadow 0.2s ease;
 
     /* Additional UI variables */
-    --card-bg: 0 0% 100%; /* White #FFFFFF */
-    --popover-bg: 0 0% 100%; /* White #FFFFFF */
-    --glass-bg: 0 0% 100% / 0.35; /* rgba(255, 255, 255, 0.35) */
-    --glass-border: 0 0% 100% / 0.18; /* rgba(255, 255, 255, 0.18) */
+    --card-bg: 0 0% 100%; /* #FFFFFF */
+    --popover-bg: 0 0% 100%; /* #FFFFFF */
+    --glass-bg: 0 0% 100% / 0.35;
+    --glass-border: 0 0% 100% / 0.18;
 
-    --sidebar-background: 0 0% 92%; /* Light Gray */
-    --sidebar-foreground: 253 54% 16%; /* Night Blue #130F40 */
-    --sidebar-primary: 252 64% 52%; /* Blurple #4834D4 */
-    --sidebar-primary-foreground: 0 0% 100%; /* White #FFFFFF */
-    --sidebar-accent: 0 0% 100%; /* White #FFFFFF */
-    --sidebar-accent-foreground: 253 54% 16%; /* Night Blue #130F40 */
-    --sidebar-border: 174 100% 36%; /* Mint Green #00B894 */
-    --sidebar-ring: 252 64% 52%; /* Blurple #4834D4 */
-    --brand: 174 100% 36%; /* Mint Green #00B894 */
-    --brand-foreground: 0 0% 100%; /* White #FFFFFF */
+    --sidebar-background: 200 12% 95%; /* #F1F3F4 */
+    --sidebar-foreground: 0 0% 12%; /* #1F1F1F */
+    --sidebar-primary: 217 90% 43%; /* #0B57D0 */
+    --sidebar-primary-foreground: 0 0% 100%; /* #FFFFFF */
+    --sidebar-accent: 0 0% 100%; /* #FFFFFF */
+    --sidebar-accent-foreground: 0 0% 12%; /* #1F1F1F */
+    --sidebar-border: 220 9% 87%; /* #DADCE0 */
+    --sidebar-ring: 217 90% 43%; /* #0B57D0 */
+    --brand: 217 90% 43%; /* #0B57D0 */
+    --brand-foreground: 0 0% 100%; /* #FFFFFF */
+
+    /* Status colors */
+    --success: 137 65% 34%; /* #1E8E3E */
+    --warning: 41 100% 49%; /* #F9AB00 */
+    --info: 214 82% 51%; /* #1A73E8 */
 
     /* Call to Action color */
-    --cta: 252 64% 52%; /* Blurple #4834D4 */
-    --cta-foreground: 0 0% 100%; /* White #FFFFFF */
+    --cta: 217 90% 43%; /* #0B57D0 */
+    --cta-foreground: 0 0% 100%; /* #FFFFFF */
   }
 
   .dark {
-    /* Spotnere Design System - Dark Mode */
-    --background: 253 54% 12%; /* Darker Night Blue */
-    --foreground: 0 0% 100%; /* White #FFFFFF */
+    /* Spotnere Design System - Dark Mode (Forest Highlands - Neutral Stone) */
+    --background: 210 7% 6%; /* #0E0F10 */
+    --foreground: 200 7% 91%; /* #E7E9EA */
 
-    --card: 253 54% 18%; /* Slightly lighter night blue */
-    --card-foreground: 0 0% 100%; /* White #FFFFFF */
+    --card: 195 7% 12%; /* #1C1F20 */
+    --card-foreground: 200 7% 91%; /* #E7E9EA */
 
-    --popover: 253 54% 18%; /* Slightly lighter night blue */
-    --popover-foreground: 0 0% 100%; /* White #FFFFFF */
+    --popover: 195 7% 12%; /* #1C1F20 */
+    --popover-foreground: 200 7% 91%; /* #E7E9EA */
 
-    --primary: 252 64% 52%; /* Blurple #4834D4 */
-    --primary-foreground: 0 0% 100%; /* White #FFFFFF */
+    --primary: 159 17% 37%; /* #4F6F64 */
+    --primary-foreground: 200 7% 91%; /* #E7E9EA */
 
-    --secondary: 174 100% 36%; /* Mint Green #00B894 */
-    --secondary-foreground: 0 0% 100%; /* White #FFFFFF */
+    --secondary: 34 31% 46%; /* #9B7B52 */
+    --secondary-foreground: 200 7% 91%; /* #E7E9EA */
 
-    --muted: 253 54% 18%; /* Slightly lighter night blue */
-    --muted-foreground: 0 0% 85%; /* Lighter White */
+    --muted: 200 6% 9%; /* #161819 */
+    --muted-foreground: 202 4% 64%; /* #A0A5A8 */
 
-    --accent: 47 94% 53%; /* Lemon Sorbet #F9CA24 */
-    --accent-foreground: 253 54% 12%; /* Darker Night Blue */
+    --accent: 40 58% 55%; /* #CFA24A */
+    --accent-foreground: 210 7% 6%; /* #0E0F10 */
 
-    --destructive: 0 84% 60%; /* Red for errors */
-    --destructive-foreground: 0 0% 100%; /* White #FFFFFF */
+    --destructive: 6 44% 56%; /* #C0675D */
+    --destructive-foreground: 200 7% 91%; /* #E7E9EA */
 
-    --border: 174 100% 36%; /* Mint Green #00B894 */
-    --input: 253 54% 25%; /* Medium night blue */
-    --ring: 252 64% 52%; /* Blurple #4834D4 */
+    --border: 200 7% 18%; /* #2A2E30 */
+    --input: 200 7% 18%; /* #2A2E30 */
+    --ring: 159 17% 37%; /* #4F6F64 */
 
     /* Glass morphism tokens - inverted for dark */
     --glass: 0 0% 0% / 0.25;
-    --glass-stroke: 255 255 255 / 0.15;
+    --glass-stroke: 0 0% 100% / 0.15;
     --glass-blur: 20px;
 
     /* Shadows */
-    --shadow-soft: 0 0 0 / 0.15;
-    --shadow-strong: 0 0 0 / 0.3;
+    --shadow-soft: 0 0% 0% / 0.8; /* rgba(0, 0, 0, 0.8) */
+    --shadow-strong: 0 0% 0% / 0.9;
 
     /* Gradients */
-    --gradient-hero: linear-gradient(135deg, #4834d4, #00b894);
+    --gradient-hero: linear-gradient(135deg, #4F6F64, #9B7B52);
     --gradient-subtle: linear-gradient(
       180deg,
-      hsl(253, 54%, 12%),
-      /* Darker Night Blue */ hsl(253, 54%, 18%)
-        /* Slightly lighter night blue */
+      hsl(210, 7%, 6%),
+      hsl(200, 6%, 9%)
     );
-    --gradient-primary: linear-gradient(135deg, #4834d4, #00b894);
+    --gradient-primary: linear-gradient(135deg, #4F6F64, #6E9C86);
     --gradient-card-glow: linear-gradient(
       145deg,
       rgba(255, 255, 255, 0.1),
@@ -147,25 +150,30 @@ All colors MUST be HSL.
     );
 
     /* Additional UI variables */
-    --card-bg: 253 54% 18%; /* Slightly lighter night blue */
-    --popover-bg: 253 54% 18%; /* Slightly lighter night blue */
+    --card-bg: 195 7% 12%; /* #1C1F20 */
+    --popover-bg: 195 7% 12%; /* #1C1F20 */
     --glass-bg: 0 0% 0% / 0.25;
-    --glass-border: 255 255 255 / 0.15;
+    --glass-border: 0 0% 100% / 0.15;
 
-    --sidebar-background: 253 54% 18%; /* Slightly lighter night blue */
-    --sidebar-foreground: 0 0% 100%; /* White #FFFFFF */
-    --sidebar-primary: 252 64% 52%; /* Blurple #4834D4 */
-    --sidebar-primary-foreground: 0 0% 100%; /* White #FFFFFF */
-    --sidebar-accent: 253 54% 12%; /* Darker Night Blue */
-    --sidebar-accent-foreground: 0 0% 100%; /* White #FFFFFF */
-    --sidebar-border: 174 100% 36%; /* Mint Green #00B894 */
-    --sidebar-ring: 252 64% 52%; /* Blurple #4834D4 */
-    --brand: 174 100% 36%; /* Mint Green #00B894 */
-    --brand-foreground: 0 0% 100%; /* White #FFFFFF */
+    --sidebar-background: 200 6% 9%; /* #161819 */
+    --sidebar-foreground: 200 7% 91%; /* #E7E9EA */
+    --sidebar-primary: 159 17% 37%; /* #4F6F64 */
+    --sidebar-primary-foreground: 200 7% 91%; /* #E7E9EA */
+    --sidebar-accent: 210 7% 6%; /* #0E0F10 */
+    --sidebar-accent-foreground: 200 7% 91%; /* #E7E9EA */
+    --sidebar-border: 200 7% 18%; /* #2A2E30 */
+    --sidebar-ring: 159 17% 37%; /* #4F6F64 */
+    --brand: 159 17% 37%; /* #4F6F64 */
+    --brand-foreground: 200 7% 91%; /* #E7E9EA */
+
+    /* Status colors */
+    --success: 151 19% 52%; /* #6E9C86 */
+    --warning: 40 58% 55%; /* #CFA24A */
+    --info: 160 9% 52%; /* #7A8F88 */
 
     /* Call to Action color */
-    --cta: 252 64% 52%; /* Blurple #4834D4 */
-    --cta-foreground: 0 0% 100%; /* White #FFFFFF */
+    --cta: 159 17% 37%; /* #4F6F64 */
+    --cta-foreground: 200 7% 91%; /* #E7E9EA */
   }
   .theme {
     --animate-marquee: marquee var(--duration) linear infinite;
@@ -253,6 +261,17 @@ All colors MUST be HSL.
     50% {
       transform: translateY(-20px);
     }
+  }
+
+  /* Bouncy heart animation */
+  @keyframes bounce-heart {
+    0% { transform: scale(1); }
+    15% { transform: scale(1.35); }
+    30% { transform: scale(0.85); }
+    45% { transform: scale(1.2); }
+    60% { transform: scale(0.95); }
+    75% { transform: scale(1.05); }
+    100% { transform: scale(1); }
   }
 }
 

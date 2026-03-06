@@ -2,16 +2,9 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { Typewriter } from "@/components/ui/typewriter";
 import { useGeolocation } from "@/contexts/GeolocationContext";
-import { Search, MapPin } from "lucide-react";
+import { Search } from "lucide-react";
 
 interface SearchBarProps {
   title?: string;
@@ -66,7 +59,7 @@ const SearchBar = ({
               country,
               state,
             }),
-          }
+          },
         );
 
         if (!response.ok) {
@@ -112,134 +105,13 @@ const SearchBar = ({
     if (selectedCity && selectedCity !== "any") {
       params.set("city", selectedCity);
     }
-    navigate(`/explore?${params.toString()}`);
+    navigate(`/?${params.toString()}`);
   };
 
   return (
     <section
-      className={`relative min-h-[45vh] flex items-center justify-center pt-6 pb-6 px-4 overflow-hidden ${backgroundClassName}`}
+      className={`relative min-h-[33vh] flex items-center justify-center pt-6 pb-6 px-4 overflow-hidden border-b-2 border-border shadow-xl ${backgroundClassName}`}
     >
-      {/* Floating Emojis - Scattered throughout entire component */}
-      {/* Top Area */}
-
-      <div
-        className="absolute top-20 left-1/4 text-4xl opacity-65 hover:opacity-100 transition-opacity pointer-events-none z-0"
-        style={{
-          animation: "float 4.2s ease-in-out infinite",
-          animationDelay: "0.8s",
-        }}
-      >
-        ✈️
-      </div>
-
-      <div
-        className="absolute top-24 left-1/3 text-3xl opacity-65 hover:opacity-100 transition-opacity pointer-events-none z-0"
-        style={{
-          animation: "float 4.5s ease-in-out infinite",
-          animationDelay: "1.2s",
-        }}
-      >
-        🎡
-      </div>
-      <div
-        className="absolute top-10 right-1/4 text-4xl opacity-70 hover:opacity-100 transition-opacity pointer-events-none z-0"
-        style={{
-          animation: "float 3.6s ease-in-out infinite",
-          animationDelay: "0.6s",
-        }}
-      >
-        🗺️
-      </div>
-
-      {/* Middle/Title Area */}
-      <div
-        className="absolute top-1/3 left-12 text-4xl opacity-70 hover:opacity-100 transition-opacity pointer-events-none z-0"
-        style={{
-          animation: "float 4.3s ease-in-out infinite",
-          animationDelay: "0.4s",
-        }}
-      >
-        🌴
-      </div>
-      <div
-        className="absolute top-1/3 right-12 text-4xl opacity-70 hover:opacity-100 transition-opacity pointer-events-none z-0"
-        style={{
-          animation: "float 3.7s ease-in-out infinite",
-          animationDelay: "0.9s",
-        }}
-      >
-        🎠
-      </div>
-
-      <div
-        className="absolute top-2/5 right-1/5 text-4xl opacity-65 hover:opacity-100 transition-opacity pointer-events-none z-0"
-        style={{
-          animation: "float 3.9s ease-in-out infinite",
-          animationDelay: "0.7s",
-        }}
-      >
-        📍
-      </div>
-      <div
-        className="absolute top-1/2 left-20 text-3xl opacity-70 hover:opacity-100 transition-opacity pointer-events-none z-0"
-        style={{
-          animation: "float 4.4s ease-in-out infinite",
-          animationDelay: "0.2s",
-        }}
-      >
-        ⛰️
-      </div>
-      <div
-        className="absolute top-1/2 right-20 text-4xl opacity-70 hover:opacity-100 transition-opacity pointer-events-none z-0"
-        style={{
-          animation: "float 3.8s ease-in-out infinite",
-          animationDelay: "1.0s",
-        }}
-      >
-        🏝️
-      </div>
-      <div
-        className="absolute top-2/5 left-1/3 text-3xl opacity-65 hover:opacity-100 transition-opacity pointer-events-none z-0"
-        style={{
-          animation: "float 4.0s ease-in-out infinite",
-          animationDelay: "0.5s",
-        }}
-      >
-        ☁️
-      </div>
-
-      {/* Bottom Area */}
-
-      <div
-        className="absolute bottom-12 right-12 text-5xl opacity-70 hover:opacity-100 transition-opacity pointer-events-none z-0"
-        style={{
-          animation: "float 3.8s ease-in-out infinite",
-          animationDelay: "0.3s",
-        }}
-      >
-        🎢
-      </div>
-
-      <div
-        className="absolute bottom-14 left-1/3 text-3xl opacity-65 hover:opacity-100 transition-opacity pointer-events-none z-0"
-        style={{
-          animation: "float 4.1s ease-in-out infinite",
-          animationDelay: "0.9s",
-        }}
-      >
-        🌊
-      </div>
-
-      <div
-        className="absolute bottom-10 left-12 text-3xl opacity-70 hover:opacity-100 transition-opacity pointer-events-none z-0"
-        style={{
-          animation: "float 4.3s ease-in-out infinite",
-          animationDelay: "0.8s",
-        }}
-      >
-        🗺️
-      </div>
-
       <div className={`relative z-10 w-full max-w-5xl ${className}`}>
         <div className="mb-6">
           <h1 className="text-5xl font-bold text-center text-foreground">
@@ -269,63 +141,18 @@ const SearchBar = ({
         <div className="relative">
           <div className="bg-background rounded-full shadow-lg border border-[#dfdede] overflow-hidden flex items-center divide-x divide-[#dfdede] relative z-10">
             {/* Where */}
-            <div className="flex-[2] px-6 py-4">
-              <label className="text-sm font-semibold text-foreground mb-1 block opacity-80">
+            <div className="flex-[2] px-10 py-4">
+              <label className="text-md font-bold text-foreground mb-1 block opacity-80">
                 🎡 Where
               </label>
               <div className="flex items-center gap-2">
                 <Input
                   type="text"
-                  placeholder="Search destinations or categories"
+                  placeholder="Start typing to search..."
                   value={searchLocation}
                   onChange={(e) => setSearchLocation(e.target.value)}
-                  className="border-0 p-0 h-auto focus-visible:ring-0 focus-visible:ring-offset-0 text-sm"
+                  className="border-0 p-0 h-auto focus-visible:ring-0 focus-visible:ring-offset-0 text-sm placeholder:opacity-80"
                 />
-              </div>
-            </div>
-
-            {/* Location */}
-            <div className="flex-1 px-6 py-4">
-              <label className="text-sm font-semibold text-foreground mb-1 block opacity-80">
-                📍 Location
-              </label>
-              <div className="flex items-center gap-2">
-                <Select
-                  value={selectedCity || undefined}
-                  onValueChange={setSelectedCity}
-                  disabled={citiesLoading || !country || !state}
-                >
-                  <SelectTrigger className="border-0 p-0 h-auto focus:ring-0 focus:ring-offset-0 text-sm shadow-none">
-                    <SelectValue
-                      placeholder={
-                        citiesLoading
-                          ? "Loading cities..."
-                          : !country || !state
-                          ? "Select location"
-                          : "Any location"
-                      }
-                    />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {/* Any location option */}
-                    <SelectItem value="any">Any location</SelectItem>
-                    {citiesError ? (
-                      <div className="px-2 py-1.5 text-sm text-muted-foreground">
-                        {citiesError}
-                      </div>
-                    ) : cities.length === 0 ? (
-                      <div className="px-2 py-1.5 text-sm text-muted-foreground">
-                        No cities available
-                      </div>
-                    ) : (
-                      cities.map((city) => (
-                        <SelectItem key={city} value={city}>
-                          {city}
-                        </SelectItem>
-                      ))
-                    )}
-                  </SelectContent>
-                </Select>
               </div>
             </div>
 

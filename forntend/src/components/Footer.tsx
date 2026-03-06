@@ -26,7 +26,7 @@ const Footer = () => {
             <ul className="space-y-2 text-sm">
               <li>
                 <Link
-                  to="/explore"
+                  to="/"
                   className="text-muted-foreground hover:text-primary transition-smooth"
                 >
                   All Places

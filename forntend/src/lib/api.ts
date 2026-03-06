@@ -289,3 +289,126 @@ export const placesApi = {
     return data.data || [];
   },
 };
+
+
+// ── Auth API ────────────────────────────────────────────────────────────────
+
+export interface AuthUserResponse {
+  id: string;
+  email: string;
+  first_name: string;
+  last_name: string;
+  phone_number?: string | null;
+  address?: string | null;
+  city?: string | null;
+  state?: string | null;
+  country?: string | null;
+  postal_code?: string | null;
+  created_at?: string | null;
+}
+
+export interface AuthResponse {
+  success: boolean;
+  token: string;
+  user: AuthUserResponse;
+}
+
+export const authApi = {
+  async login(email: string, password: string): Promise<AuthResponse> {
+    const response = await fetch(`${API_BASE_URL}/api/auth/login`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email, password }),
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new Error(data.detail || "Login failed");
+    }
+
+    return data;
+  },
+
+  async signup(params: {
+    email: string;
+    password: string;
+    first_name: string;
+    last_name: string;
+    phone_number?: string;
+    address?: string;
+    city?: string;
+    state?: string;
+    country?: string;
+    postal_code?: string;
+  }): Promise<AuthResponse> {
+    const response = await fetch(`${API_BASE_URL}/api/auth/signup`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(params),
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new Error(data.detail || "Signup failed");
+    }
+
+    return data;
+  },
+
+  async getMe(token: string): Promise<{ success: boolean; user: AuthUserResponse }> {
+    const response = await fetch(`${API_BASE_URL}/api/auth/me`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new Error(data.detail || "Failed to get user");
+    }
+
+    return data;
+  },
+};
+
+
+// ── Favorites API ───────────────────────────────────────────────────────────
+
+export const favoritesApi = {
+  async getFavoriteIds(token: string): Promise<string[]> {
+    const response = await fetch(`${API_BASE_URL}/api/favorites`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    const data = await response.json();
+    if (!response.ok) throw new Error(data.detail || "Failed to fetch favorites");
+    return data.data;
+  },
+
+  async getFavoritePlaces(token: string): Promise<PlacesResponse> {
+    const response = await fetch(`${API_BASE_URL}/api/favorites/places`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    const data = await response.json();
+    if (!response.ok) throw new Error(data.detail || "Failed to fetch favorite places");
+    return {
+      success: true,
+      data: (data.data || []).map(mapApiPlaceToPlace),
+      count: data.count || 0,
+    };
+  },
+
+  async toggle(token: string, placeId: string): Promise<{ favorited: boolean }> {
+    const response = await fetch(`${API_BASE_URL}/api/favorites/toggle`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({ place_id: placeId }),
+    });
+    const data = await response.json();
+    if (!response.ok) throw new Error(data.detail || "Failed to toggle favorite");
+    return { favorited: data.favorited };
+  },
+};

@@ -629,7 +629,7 @@ export default function AboutSection() {
                 spot isn’t just easier — it’s inspiring.
               </p>
               <a
-                href="/explore"
+                href="/"
                 className="inline-flex items-center justify-center rounded-md border border-transparent bg-primary px-7 py-3 text-center text-base font-medium text-primary-foreground hover:bg-primary/90"
               >
                 Get Started

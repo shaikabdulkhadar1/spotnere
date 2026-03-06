@@ -405,14 +405,17 @@ const PlaceDetails = () => {
               )}
 
               {/* Hours */}
-              {place.hours && place.hours.length > 0 && (
+              {place.hours && (Array.isArray(place.hours) ? place.hours.length > 0 : Object.keys(place.hours).length > 0) && (
                 <section>
                   <p className="text-xl font-semibold mb-4 flex items-center gap-2 text-foreground">
                     <Clock className="h-5 w-5" />
                     Opening hours
                   </p>
                   <div className="rounded-xl border bg-background divide-y">
-                    {place.hours.map((hour, index) => (
+                    {(Array.isArray(place.hours)
+                      ? place.hours.map((h) => ({ day: h.day, open: h.open, close: h.close }))
+                      : Object.entries(place.hours).map(([day, times]) => ({ day, open: times.open, close: times.close }))
+                    ).map((hour, index) => (
                       <div
                         key={index}
                         className="flex justify-between items-center px-4 py-3"

@@ -1,6 +1,7 @@
 export interface Category {
   name: string;
   subCategories: string[];
+  icon: string;
 }
 
 export interface CategoriesData {
@@ -26,6 +27,7 @@ export const categories: Category[] = [
       "Trampolin",
       "Cycling",
     ],
+    icon: "/categoryImages/sportsImg.png",
   },
   {
     name: "Adventure",
@@ -38,6 +40,7 @@ export const categories: Category[] = [
       "Ziplining",
       "Horse Riding",
     ],
+    icon: "/categoryImages/adventureImg.png",
   },
   {
     name: "Parks",
@@ -47,10 +50,12 @@ export const categories: Category[] = [
       "Zoological park",
       "Kids park",
     ],
+    icon: "/categoryImages/parkImg.png",
   },
   {
     name: "Staycation",
     subCategories: ["Farm House", "Resorts", "5S Villa's"],
+    icon: "/categoryImages/staycationImg.png",
   },
   {
     name: "Tickets to Event",
@@ -63,6 +68,7 @@ export const categories: Category[] = [
       "Kabaddi Match",
       "IPL Tickets",
     ],
+    icon: "/categoryImages/ticketImg.png",
   },
   {
     name: "Exclusive",
@@ -74,6 +80,7 @@ export const categories: Category[] = [
       "Ferrari World",
       "Mount Everest Climbing",
     ],
+    icon: "/categoryImages/exclusiveImg.png",
   },
 ];
 
@@ -89,7 +96,7 @@ export function getCategoryNames(): string[] {
  */
 export function getSubCategories(categoryName: string): string[] {
   const category = categories.find(
-    (cat) => cat.name.toLowerCase() === categoryName.toLowerCase()
+    (cat) => cat.name.toLowerCase() === categoryName.toLowerCase(),
   );
   return category?.subCategories || [];
 }
@@ -99,7 +106,7 @@ export function getSubCategories(categoryName: string): string[] {
  */
 export function getCategory(categoryName: string): Category | undefined {
   return categories.find(
-    (cat) => cat.name.toLowerCase() === categoryName.toLowerCase()
+    (cat) => cat.name.toLowerCase() === categoryName.toLowerCase(),
   );
 }
 
@@ -108,7 +115,7 @@ export function getCategory(categoryName: string): Category | undefined {
  */
 export function categoryExists(categoryName: string): boolean {
   return categories.some(
-    (cat) => cat.name.toLowerCase() === categoryName.toLowerCase()
+    (cat) => cat.name.toLowerCase() === categoryName.toLowerCase(),
   );
 }
 
@@ -117,10 +124,10 @@ export function categoryExists(categoryName: string): boolean {
  */
 export function subCategoryExists(
   categoryName: string,
-  subCategoryName: string
+  subCategoryName: string,
 ): boolean {
   const subCategories = getSubCategories(categoryName);
   return subCategories.some(
-    (sub) => sub.toLowerCase() === subCategoryName.toLowerCase()
+    (sub) => sub.toLowerCase() === subCategoryName.toLowerCase(),
   );
 }

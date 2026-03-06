@@ -1,0 +1,37 @@
+# Dependencies
+forntend/node_modules/
+node_modules/
+
+# Build output
+forntend/dist/
+forntend/.vite/
+
+# Environment variables
+.env
+.env.*
+!.env.example
+
+# Python
+backend/__pycache__/
+backend/*.pyc
+backend/.venv/
+*.egg-info/
+
+# IDE / Editor
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+._*
+
+# Logs
+*.log
+npm-debug.log*
+
+# OS files
+Thumbs.db
+
+# Cursor
+.cursor/
