@@ -1,12 +1,12 @@
-import React, { useEffect, useState, useRef } from "react";
-import { useNavigate } from "react-router-dom";
+import { useEffect, useState, useRef } from "react";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import SearchBar from "@/components/SearchBar";
 import PlaceCard from "@/components/PlaceCard";
-import { usePlaces } from "@/hooks/use-places";
-import { MapPin, ChevronDown } from "lucide-react";
+import { usePlaces, useSearchPlaces } from "@/hooks/use-places";
+import { ChevronDown, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { categories } from "@/lib/categories";
 
@@ -21,6 +21,10 @@ const CATEGORY_PILLS = [
 
 const Index = () => {
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const searchQuery = searchParams.get("q") || "";
+  const activeCategory = searchParams.get("category") || "";
+  const activeSubcategory = searchParams.get("subcategory") || "";
   const [openDropdown, setOpenDropdown] = useState<string | null>(null);
   const pillsRef = useRef<HTMLDivElement>(null);
 
@@ -36,13 +40,29 @@ const Index = () => {
 
   const {
     data: allPlaces,
-    isLoading,
-    isError,
-    error,
+    isLoading: allLoading,
+    isError: allError,
+    error: allErr,
   } = usePlaces({
     limit: 100,
     enabled: true,
+    category: activeCategory || undefined,
+    sub_category: activeSubcategory || undefined,
   });
+
+  const {
+    data: searchResults,
+    isLoading: searchLoading,
+    isError: searchError,
+    error: searchErr,
+  } = useSearchPlaces(searchQuery, 100, searchQuery.length > 0);
+
+  const isSearching = searchQuery.length > 0;
+  const isFiltering = !!activeCategory;
+  const places = isSearching ? searchResults : allPlaces;
+  const isLoading = isSearching ? searchLoading : allLoading;
+  const isError = isSearching ? searchError : allError;
+  const error = isSearching ? searchErr : allErr;
 
   return (
     <div className="min-h-screen">
@@ -60,6 +80,10 @@ const Index = () => {
           {CATEGORY_PILLS.map((cat) => {
             const catData = categories.find((c) => c.name === cat.value);
             const isOpen = openDropdown === cat.value;
+            const isActive =
+              cat.value === "all"
+                ? !activeCategory
+                : activeCategory === cat.value;
 
             return (
               <div key={cat.value} className="relative shrink-0">
@@ -75,9 +99,11 @@ const Index = () => {
                   className={cn(
                     "flex items-center gap-1.5 px-5 py-2 rounded-full text-sm font-medium transition-all duration-200",
                     "border active:scale-95",
-                    isOpen
-                      ? "border-primary bg-primary/10 text-primary shadow-sm"
-                      : "border-border bg-background text-foreground hover:bg-muted hover:shadow-sm",
+                    isActive
+                      ? "border-primary bg-primary/10 text-primary shadow-sm ring-1 ring-primary/30"
+                      : isOpen
+                        ? "border-primary bg-primary/5 text-primary shadow-sm"
+                        : "border-border bg-background text-foreground hover:bg-muted hover:shadow-sm",
                   )}
                 >
                   <img
@@ -105,7 +131,12 @@ const Index = () => {
                         );
                         setOpenDropdown(null);
                       }}
-                      className="w-full px-4 py-2 text-left text-sm font-medium text-foreground hover:bg-muted transition-colors"
+                      className={cn(
+                        "w-full px-4 py-2 text-left text-sm font-medium transition-colors",
+                        activeCategory === cat.value && !activeSubcategory
+                          ? "bg-primary/10 text-primary"
+                          : "text-foreground hover:bg-muted",
+                      )}
                     >
                       All {cat.label}
                     </button>
@@ -119,7 +150,12 @@ const Index = () => {
                           );
                           setOpenDropdown(null);
                         }}
-                        className="w-full px-4 py-2 text-left text-sm text-foreground hover:bg-muted transition-colors"
+                        className={cn(
+                          "w-full px-4 py-2 text-left text-sm transition-colors",
+                          activeCategory === cat.value && activeSubcategory === sub
+                            ? "bg-primary/10 text-primary font-medium"
+                            : "text-foreground hover:bg-muted",
+                        )}
                       >
                         {sub}
                       </button>
@@ -132,9 +168,49 @@ const Index = () => {
         </div>
       </div>
 
-      {/* All Places Grid */}
+      {/* Places Grid */}
       <section className="py-10 px-4">
         <div className="max-w-[1400px] mx-auto">
+          {isSearching && (
+            <div className="flex items-center gap-3 mb-6">
+              <p className="text-lg text-muted-foreground">
+                Results for <span className="font-semibold text-foreground">"{searchQuery}"</span>
+              </p>
+              <button
+                onClick={() => setSearchParams({})}
+                className="flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors"
+              >
+                <X className="w-4 h-4" />
+                Clear
+              </button>
+            </div>
+          )}
+
+          {!isSearching && isFiltering && (
+            <div className="flex items-center gap-3 mb-6">
+              <p className="text-lg text-muted-foreground">
+                {activeSubcategory ? (
+                  <>
+                    <span className="font-semibold text-foreground">{activeSubcategory}</span>
+                    {" "}in{" "}
+                    <span className="font-semibold text-foreground">{activeCategory}</span>
+                  </>
+                ) : (
+                  <>
+                    All{" "}
+                    <span className="font-semibold text-foreground">{activeCategory}</span>
+                  </>
+                )}
+              </p>
+              <button
+                onClick={() => navigate("/")}
+                className="flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors"
+              >
+                <X className="w-4 h-4" />
+                Clear filter
+              </button>
+            </div>
+          )}
           {isLoading ? (
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-5">
               {Array.from({ length: 10 }).map((_, i) => (
@@ -160,21 +236,38 @@ const Index = () => {
                 </Button>
               </div>
             </div>
-          ) : allPlaces && allPlaces.length > 0 ? (
+          ) : places && places.length > 0 ? (
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-5">
-              {[...allPlaces]
+              {[...places]
                 .sort((a, b) => (b.rating ?? 0) - (a.rating ?? 0))
                 .map((place, index) => (
                   <PlaceCard
                     key={place.id}
                     place={place}
-                    isGuestFavorite={index < 5}
+                    isGuestFavorite={!isSearching && index < 5}
                   />
                 ))}
             </div>
           ) : (
             <div className="flex items-center justify-center py-20">
-              <p className="text-muted-foreground">No places found</p>
+              <div className="text-center">
+                <p className="text-muted-foreground">
+                  {isSearching
+                    ? `No places found for "${searchQuery}"`
+                    : isFiltering
+                      ? `No places found in "${activeSubcategory || activeCategory}"`
+                      : "No places found"}
+                </p>
+                {(isSearching || isFiltering) && (
+                  <Button
+                    onClick={() => isSearching ? setSearchParams({}) : navigate("/")}
+                    className="mt-4"
+                    variant="outline"
+                  >
+                    {isSearching ? "Clear Search" : "Clear Filter"}
+                  </Button>
+                )}
+              </div>
             </div>
           )}
         </div>

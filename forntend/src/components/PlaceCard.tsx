@@ -84,17 +84,16 @@ interface PlaceCardProps {
   place: Place;
   onClick?: () => void;
   isGuestFavorite?: boolean;
-  forceFavorited?: boolean;
 }
 
-const PlaceCard = ({ place, onClick, isGuestFavorite = false, forceFavorited }: PlaceCardProps) => {
+const PlaceCard = ({ place, onClick, isGuestFavorite = false }: PlaceCardProps) => {
   const navigate = useNavigate();
   const { isLoggedIn } = useAuth();
   const { isFavorite, toggleFavorite } = useFavorites();
   const [showLoginDialog, setShowLoginDialog] = useState(false);
   const [bouncing, setBouncing] = useState(false);
 
-  const liked = forceFavorited ?? isFavorite(place.id);
+  const liked = isFavorite(place.id);
 
   const handleClick = () => {
     if (onClick) {

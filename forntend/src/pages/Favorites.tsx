@@ -1,10 +1,11 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import PlaceCard from "@/components/PlaceCard";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
+import { useFavorites } from "@/contexts/FavoritesContext";
 import { favoritesApi } from "@/lib/api";
 import { Place } from "@/types/place";
 import { Heart } from "lucide-react";
@@ -12,7 +13,8 @@ import { Heart } from "lucide-react";
 const Favorites = () => {
   const navigate = useNavigate();
   const { isLoggedIn, token } = useAuth();
-  const [places, setPlaces] = useState<Place[]>([]);
+  const { favorites } = useFavorites();
+  const [allFavPlaces, setAllFavPlaces] = useState<Place[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -28,7 +30,7 @@ const Favorites = () => {
     favoritesApi
       .getFavoritePlaces(token)
       .then((res) => {
-        if (!cancelled) setPlaces(res.data);
+        if (!cancelled) setAllFavPlaces(res.data);
       })
       .catch((err) => {
         if (!cancelled) setError(err.message);
@@ -41,6 +43,13 @@ const Favorites = () => {
       cancelled = true;
     };
   }, [isLoggedIn, token]);
+
+  // Filter displayed places to only those still in the favorites context,
+  // so unfavorited cards disappear instantly without a refetch.
+  const places = useMemo(
+    () => allFavPlaces.filter((p) => favorites.has(p.id)),
+    [allFavPlaces, favorites],
+  );
 
   if (!isLoggedIn) {
     return (
@@ -101,7 +110,7 @@ const Favorites = () => {
           ) : places.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
               {places.map((place) => (
-                <PlaceCard key={place.id} place={place} forceFavorited />
+                <PlaceCard key={place.id} place={place} />
               ))}
             </div>
           ) : (

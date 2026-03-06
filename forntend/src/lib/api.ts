@@ -98,6 +98,7 @@ export const placesApi = {
     limit?: number;
     offset?: number;
     category?: string;
+    sub_category?: string;
     city?: string;
     country?: string;
   }): Promise<PlacesResponse> {
@@ -105,6 +106,7 @@ export const placesApi = {
     if (params?.limit) queryParams.append("limit", params.limit.toString());
     if (params?.offset) queryParams.append("offset", params.offset.toString());
     if (params?.category) queryParams.append("category", params.category);
+    if (params?.sub_category) queryParams.append("sub_category", params.sub_category);
     if (params?.city) queryParams.append("city", params.city);
     if (params?.country) queryParams.append("country", params.country);
 

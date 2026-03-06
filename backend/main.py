@@ -360,6 +360,7 @@ async def get_places(
     limit: int = Query(100, ge=1, le=1000),
     offset: int = Query(0, ge=0),
     category: str | None = None,
+    sub_category: str | None = None,
     city: str | None = None,
     country: str | None = None,
 ):
@@ -368,10 +369,9 @@ async def get_places(
 
     Supports optional filters used by the frontend:
     - limit, offset
-    - category, city, country (case-insensitive)
+    - category, sub_category, city, country (case-insensitive)
     """
     try:
-        # Base query: only visible places
         query = (
             supabase.table("places")
             .select("*", count="exact")
@@ -380,6 +380,8 @@ async def get_places(
 
         if category:
             query = query.ilike("category", f"%{category}%")
+        if sub_category:
+            query = query.ilike("sub_category", f"%{sub_category}%")
         if city:
             query = query.ilike("city", f"%{city}%")
         if country:
@@ -403,6 +405,44 @@ async def get_places(
         raise HTTPException(
             status_code=500,
             detail=f"Error fetching places from Supabase: {str(e)}",
+        )
+
+
+@app.get("/api/places/search")
+async def search_places(
+    q: str = Query(..., min_length=1),
+    limit: int = Query(20, ge=1, le=100),
+):
+    """Full-text style search across name, city, state, and country."""
+    try:
+        pattern = f"%{q}%"
+
+        query = (
+            supabase.table("places")
+            .select("*", count="exact")
+            .eq("visible", True)
+            .or_(
+                f"name.ilike.{pattern},"
+                f"city.ilike.{pattern},"
+                f"state.ilike.{pattern},"
+                f"country.ilike.{pattern}"
+            )
+            .limit(limit)
+        )
+
+        response = query.execute()
+        data = response.data or []
+        count = getattr(response, "count", None) or len(data)
+
+        return {
+            "success": True,
+            "data": data,
+            "count": count,
+        }
+    except Exception as e:
+        raise HTTPException(
+            status_code=500,
+            detail=f"Error searching places: {str(e)}",
         )
 
 
@@ -502,46 +542,6 @@ async def get_featured_places(limit: int = Query(10, ge=1, le=50)):
             detail=f"Error fetching featured places: {str(e)}",
         )
 
-
-@app.get("/api/places/search")
-async def search_places(
-    q: str = Query(..., min_length=1),
-    limit: int = Query(20, ge=1, le=100),
-):
-    """
-    Full-text style search across name, city, state, and country.
-    Used by the frontend search API.
-    """
-    try:
-        pattern = f"%{q}%"
-
-        query = (
-            supabase.table("places")
-            .select("*", count="exact")
-            .eq("visible", True)
-            .or_(
-                "name.ilike.{pattern},"
-                "city.ilike.{pattern},"
-                "state.ilike.{pattern},"
-                "country.ilike.{pattern}".format(pattern=pattern)
-            )
-            .limit(limit)
-        )
-
-        response = query.execute()
-        data = response.data or []
-        count = getattr(response, "count", None) or len(data)
-
-        return {
-            "success": True,
-            "data": data,
-            "count": count,
-        }
-    except Exception as e:
-        raise HTTPException(
-            status_code=500,
-            detail=f"Error searching places: {str(e)}",
-        )
 
 @app.get("/health")
 async def health_check():

@@ -6,6 +6,7 @@ export interface UsePlacesParams {
   limit?: number;
   offset?: number;
   category?: string;
+  sub_category?: string;
   city?: string;
   country?: string;
   enabled?: boolean;

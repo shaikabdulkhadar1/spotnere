@@ -99,13 +99,12 @@ const SearchBar = ({
   }, [country, state]);
 
   const handleSearch = () => {
-    const params = new URLSearchParams();
-    if (searchLocation) params.set("location", searchLocation);
-    // Only add city param if a specific city is selected (not "any")
-    if (selectedCity && selectedCity !== "any") {
-      params.set("city", selectedCity);
+    const query = searchLocation.trim();
+    if (query) {
+      navigate(`/?q=${encodeURIComponent(query)}`);
+    } else {
+      navigate("/");
     }
-    navigate(`/?${params.toString()}`);
   };
 
   return (
@@ -151,6 +150,7 @@ const SearchBar = ({
                   placeholder="Start typing to search..."
                   value={searchLocation}
                   onChange={(e) => setSearchLocation(e.target.value)}
+                  onKeyDown={(e) => e.key === "Enter" && handleSearch()}
                   className="border-0 p-0 h-auto focus-visible:ring-0 focus-visible:ring-offset-0 text-sm placeholder:opacity-80"
                 />
               </div>
