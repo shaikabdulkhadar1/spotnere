@@ -414,3 +414,45 @@ export const favoritesApi = {
     return { favorited: data.favorited };
   },
 };
+
+
+// ── Bookings API ────────────────────────────────────────────────────────────
+
+export interface BookingPlace {
+  id: string;
+  name: string;
+  banner_image_link: string | null;
+  city: string | null;
+  country: string | null;
+}
+
+export interface Booking {
+  id: string;
+  place_id: string;
+  booking_date_time: string;
+  booking_ref_number: string;
+  transaction_id: string | null;
+  receipt_url: string | null;
+  created_at: string | null;
+  amount_paid: number | null;
+  currency_paid: string | null;
+  amount_payable_to_vendor: number | null;
+  payment_status: string;
+  payment_method: string | null;
+  paid_at: string | null;
+  payment_error: string | null;
+  number_of_guests: number | null;
+  booking_status: string;
+  place: BookingPlace | null;
+}
+
+export const bookingsApi = {
+  async getBookings(token: string): Promise<{ data: Booking[]; count: number }> {
+    const response = await fetch(`${API_BASE_URL}/api/bookings`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    const data = await response.json();
+    if (!response.ok) throw new Error(data.detail || "Failed to fetch bookings");
+    return { data: data.data || [], count: data.count || 0 };
+  },
+};

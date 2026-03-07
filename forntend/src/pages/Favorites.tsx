@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
-import PlaceCard from "@/components/PlaceCard";
+import PlaceCard, { PlaceCardSkeleton } from "@/components/PlaceCard";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
 import { useFavorites } from "@/contexts/FavoritesContext";
@@ -85,10 +85,7 @@ const Favorites = () => {
           {isLoading ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
               {Array.from({ length: 5 }).map((_, i) => (
-                <div
-                  key={i}
-                  className="h-[26rem] rounded-2xl bg-muted animate-pulse"
-                />
+                <PlaceCardSkeleton key={i} />
               ))}
             </div>
           ) : error ? (

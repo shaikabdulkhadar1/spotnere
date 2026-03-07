@@ -345,6 +345,32 @@ async def toggle_favorite(body: FavoriteToggleRequest, user=Depends(get_current_
         raise HTTPException(status_code=500, detail=f"Error toggling favorite: {str(e)}")
 
 
+# ── Bookings endpoints ────────────────────────────────────────────────────────
+
+@app.get("/api/bookings")
+async def get_bookings(user=Depends(get_current_user)):
+    """Return all bookings for the logged-in user, with place details joined."""
+    try:
+        response = (
+            supabase.table("bookings")
+            .select("*, places(id, name, banner_image_link, city, country)")
+            .eq("user_id", user["id"])
+            .order("booking_date_time", desc=True)
+            .execute()
+        )
+        rows = response.data or []
+
+        data = []
+        for row in rows:
+            place_data = row.pop("places", None)
+            row["place"] = place_data
+            data.append(row)
+
+        return {"success": True, "data": data, "count": len(data)}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error fetching bookings: {str(e)}")
+
+
 @app.get("/")
 async def root():
     """Root endpoint"""

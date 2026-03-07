@@ -30,7 +30,9 @@ export default {
           "Arial",
           "sans-serif",
         ],
-        serif: ['Lobster Two"', "ui-serif", "Georgia", "serif"],
+        serif: ["Lobster Two", "ui-serif", "Georgia", "serif"],
+        lobster: ["Lobster Two", "cursive"],
+        parkinsans: ["Parkinsans", "sans-serif"],
       },
       colors: {
         border: "hsl(var(--border))",

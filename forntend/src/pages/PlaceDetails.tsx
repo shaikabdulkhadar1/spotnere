@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { usePlaceById, usePlaceGallery } from "@/hooks/use-places";
 import Navbar from "@/components/Navbar";
@@ -13,7 +13,6 @@ import {
   Phone,
   Globe,
   Clock,
-  ArrowLeft,
   Share2,
   ShieldCheck,
   BadgeCheck,
@@ -26,16 +25,40 @@ import {
   ChevronRight,
   X,
 } from "lucide-react";
-import { useState } from "react";
 import { cn } from "@/lib/utils";
-import { Dialog, DialogContent } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from "@/components/ui/dialog";
+import { useAuth } from "@/contexts/AuthContext";
+import { useFavorites } from "@/contexts/FavoritesContext";
 
 const PlaceDetails = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const [isFavorite, setIsFavorite] = useState(false);
+  const { isLoggedIn } = useAuth();
+  const { isFavorite, toggleFavorite } = useFavorites();
+  const [showLoginDialog, setShowLoginDialog] = useState(false);
+  const [bouncing, setBouncing] = useState(false);
   const [isImageModalOpen, setIsImageModalOpen] = useState(false);
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
+
+  const liked = id ? isFavorite(id) : false;
+
+  const handleFavoriteClick = () => {
+    if (!isLoggedIn) {
+      setShowLoginDialog(true);
+      return;
+    }
+    if (id) {
+      toggleFavorite(id);
+      setBouncing(true);
+      setTimeout(() => setBouncing(false), 400);
+    }
+  };
   const {
     data: place,
     isLoading: isPlaceLoading,
@@ -69,14 +92,14 @@ const PlaceDetails = () => {
   // Navigate to previous image
   const handlePreviousImage = () => {
     setSelectedImageIndex((prev) =>
-      prev > 0 ? prev - 1 : allImages.length - 1
+      prev > 0 ? prev - 1 : allImages.length - 1,
     );
   };
 
   // Navigate to next image
   const handleNextImage = () => {
     setSelectedImageIndex((prev) =>
-      prev < allImages.length - 1 ? prev + 1 : 0
+      prev < allImages.length - 1 ? prev + 1 : 0,
     );
   };
 
@@ -93,12 +116,12 @@ const PlaceDetails = () => {
       if (e.key === "ArrowLeft") {
         e.preventDefault();
         setSelectedImageIndex((prev) =>
-          prev > 0 ? prev - 1 : allImages.length - 1
+          prev > 0 ? prev - 1 : allImages.length - 1,
         );
       } else if (e.key === "ArrowRight") {
         e.preventDefault();
         setSelectedImageIndex((prev) =>
-          prev < allImages.length - 1 ? prev + 1 : 0
+          prev < allImages.length - 1 ? prev + 1 : 0,
         );
       } else if (e.key === "Escape") {
         setIsImageModalOpen(false);
@@ -125,59 +148,116 @@ const PlaceDetails = () => {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen">
+      <div className="min-h-screen bg-muted/10">
         <Navbar />
-        <div className="pt-24 pb-12 px-4">
-          <div className="container mx-auto max-w-6xl">
-            {/* Top bar skeleton */}
+        <div className="pt-24 pb-16 px-4">
+          <div className="container mx-auto max-w-6xl animate-pulse">
+            {/* Top bar */}
             <div className="flex items-center justify-between mb-6">
-              <Skeleton className="h-10 w-20" />
+              <Skeleton className="h-9 w-20 rounded-md" />
               <div className="flex gap-2">
-                <Skeleton className="h-10 w-10 rounded-full" />
-                <Skeleton className="h-10 w-10 rounded-full" />
+                <Skeleton className="h-9 w-9 rounded-full" />
+                <Skeleton className="h-9 w-9 rounded-full" />
               </div>
             </div>
 
-            {/* Title skeleton */}
-            <div className="mb-6 space-y-2">
-              <Skeleton className="h-10 w-64" />
-              <Skeleton className="h-6 w-48" />
+            {/* Title + location */}
+            <div className="mb-4 space-y-2">
+              <Skeleton className="h-10 w-72 md:w-96" />
+              <Skeleton className="h-5 w-48" />
             </div>
 
-            {/* Banner skeleton */}
-            <div className="mb-8">
-              <Skeleton className="h-[260px] md:h-[360px] w-full rounded-3xl" />
+            {/* Banner + gallery grid */}
+            <div className="mb-6 grid grid-cols-1 md:grid-cols-[2fr,1fr] gap-3 md:gap-4">
+              <Skeleton className="h-[320px] md:h-[450px] rounded-3xl" />
+              <div className="grid grid-cols-2 gap-2 md:gap-3 h-[320px] md:h-[450px]">
+                {Array.from({ length: 4 }).map((_, i) => (
+                  <Skeleton key={i} className="rounded-xl" />
+                ))}
+              </div>
             </div>
 
-            {/* Gallery skeleton */}
-            <div className="mb-8">
-              <Skeleton className="h-8 w-32 mb-4" />
-              <div className="border border-border rounded-xl p-4">
-                <div className="flex gap-3 overflow-x-auto scrollbar-hide pb-2">
-                  {[...Array(8)].map((_, i) => (
-                    <Skeleton
-                      key={i}
-                      className="flex-shrink-0 w-[200px] md:w-[250px] aspect-square rounded-xl"
-                    />
-                  ))}
+            {/* Trust badges + stats */}
+            <div className="mb-8 rounded-2xl border bg-background/90 shadow-md px-4 py-3 md:px-5 md:py-4 space-y-3">
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
+                {Array.from({ length: 4 }).map((_, i) => (
+                  <Skeleton key={i} className="h-8 rounded-full" />
+                ))}
+              </div>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                {Array.from({ length: 4 }).map((_, i) => (
+                  <div
+                    key={i}
+                    className="flex items-center gap-2.5 py-2.5 px-2"
+                  >
+                    <Skeleton className="h-4 w-4 rounded" />
+                    <div className="space-y-1 flex-1">
+                      <Skeleton className="h-2.5 w-12" />
+                      <Skeleton className="h-4 w-16" />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Main content + sidebar */}
+            <div className="grid md:grid-cols-[1.8fr,1fr] gap-6 md:gap-8 items-start">
+              {/* Left column */}
+              <div className="space-y-6">
+                {/* Description */}
+                <div className="space-y-3">
+                  <Skeleton className="h-8 w-48" />
+                  <Skeleton className="h-4 w-full" />
+                  <Skeleton className="h-4 w-full" />
+                  <Skeleton className="h-4 w-4/5" />
+                  <Skeleton className="h-4 w-3/5" />
+                </div>
+
+                {/* Amenities */}
+                <div className="space-y-3">
+                  <Skeleton className="h-6 w-28" />
+                  <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+                    {Array.from({ length: 6 }).map((_, i) => (
+                      <div key={i} className="flex items-center gap-2">
+                        <Skeleton className="h-2 w-2 rounded-full" />
+                        <Skeleton className="h-4 w-24" />
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Hours */}
+                <div className="space-y-3">
+                  <Skeleton className="h-6 w-36" />
+                  <div className="rounded-xl border divide-y">
+                    {Array.from({ length: 7 }).map((_, i) => (
+                      <div key={i} className="flex justify-between px-4 py-3">
+                        <Skeleton className="h-4 w-20" />
+                        <Skeleton className="h-4 w-28" />
+                      </div>
+                    ))}
+                  </div>
                 </div>
               </div>
-            </div>
 
-            {/* Trust + stats skeleton */}
-            <div className="mb-8">
-              <Skeleton className="h-24 w-full rounded-3xl mb-4" />
-              <Skeleton className="h-20 w-full rounded-2xl" />
-            </div>
-
-            {/* Content skeleton */}
-            <div className="grid md:grid-cols-[2fr,1.2fr] gap-8">
-              <div className="space-y-8">
-                <Skeleton className="h-8 w-48" />
-                <Skeleton className="h-32 w-full" />
-                <Skeleton className="h-40 w-full" />
+              {/* Right sidebar */}
+              <div className="sticky top-24">
+                <div className="rounded-2xl border shadow-lg p-5 md:p-6 space-y-4">
+                  <Skeleton className="h-7 w-44 mb-3" />
+                  <div className="space-y-3">
+                    <div className="flex items-center gap-2">
+                      <Skeleton className="h-4 w-4 rounded" />
+                      <Skeleton className="h-4 w-32" />
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Skeleton className="h-4 w-4 rounded" />
+                      <Skeleton className="h-4 w-28" />
+                    </div>
+                    <Skeleton className="h-10 w-full rounded-md" />
+                  </div>
+                  <Skeleton className="h-11 w-full rounded-md mt-4" />
+                </div>
               </div>
-              <Skeleton className="h-96 w-full rounded-3xl" />
             </div>
           </div>
         </div>
@@ -214,21 +294,23 @@ const PlaceDetails = () => {
         <div className="container mx-auto max-w-6xl">
           {/* Top bar: back + bookmark */}
           <div className="flex items-center justify-between mb-6">
-            <Button variant="ghost" onClick={() => navigate(-1)}>
-              <ArrowLeft className="h-4 w-4 mr-2" />
-              Back
-            </Button>
+            <span>  </span>
             <div className="flex items-center gap-2">
               <Button
                 variant="outline"
                 size="icon"
-                className="rounded-full"
-                onClick={() => setIsFavorite(!isFavorite)}
+                className={cn(
+                  "rounded-full",
+                  bouncing && "animate-[bounce-heart_0.4s_ease-in-out]",
+                )}
+                onClick={handleFavoriteClick}
               >
                 <Heart
                   className={cn(
-                    "h-5 w-5",
-                    isFavorite && "fill-destructive text-destructive"
+                    "h-5 w-5 transition-colors duration-200",
+                    liked
+                      ? "fill-red-500 text-red-500"
+                      : "text-muted-foreground",
                   )}
                 />
               </Button>
@@ -240,7 +322,7 @@ const PlaceDetails = () => {
 
           {/* Title + location */}
           <div className="mb-4 space-y-2">
-            <p className="text-4xl md:text-5xl font-serif font-bold text-foreground">
+            <p className="text-4xl md:text-5xl font-parkinsans font-bold text-foreground">
               {place.name}
             </p>
             <div className="flex items-center gap-2 text-muted-foreground">
@@ -376,7 +458,7 @@ const PlaceDetails = () => {
             <div className="space-y-6">
               {/* Description */}
               <section>
-                <p className="text-2xl md:text-3xl font-serif font-bold mb-4 text-foreground">
+                <p className="text-2xl md:text-3xl font-parkinsans font-bold mb-4 text-foreground">
                   About this place
                 </p>
                 <p className="text-base md:text-lg text-muted-foreground leading-relaxed">
@@ -405,39 +487,52 @@ const PlaceDetails = () => {
               )}
 
               {/* Hours */}
-              {place.hours && (Array.isArray(place.hours) ? place.hours.length > 0 : Object.keys(place.hours).length > 0) && (
-                <section>
-                  <p className="text-xl font-semibold mb-4 flex items-center gap-2 text-foreground">
-                    <Clock className="h-5 w-5" />
-                    Opening hours
-                  </p>
-                  <div className="rounded-xl border bg-background divide-y">
-                    {(Array.isArray(place.hours)
-                      ? place.hours.map((h) => ({ day: h.day, open: h.open, close: h.close }))
-                      : Object.entries(place.hours).map(([day, times]) => ({ day, open: times.open, close: times.close }))
-                    ).map((hour, index) => (
-                      <div
-                        key={index}
-                        className="flex justify-between items-center px-4 py-3"
-                      >
-                        <span className="text-sm md:text-base font-medium">
-                          {hour.day}
-                        </span>
-                        <span className="text-xs md:text-sm text-muted-foreground">
-                          {hour.open} – {hour.close}
-                        </span>
-                      </div>
-                    ))}
-                  </div>
-                  {place.openNow !== undefined && (
-                    <div className="mt-3">
-                      <Badge variant={place.openNow ? "default" : "secondary"}>
-                        {place.openNow ? "Open now" : "Currently closed"}
-                      </Badge>
+              {place.hours &&
+                (Array.isArray(place.hours)
+                  ? place.hours.length > 0
+                  : Object.keys(place.hours).length > 0) && (
+                  <section>
+                    <p className="text-xl font-semibold mb-4 flex items-center gap-2 text-foreground">
+                      <Clock className="h-5 w-5" />
+                      Opening hours
+                    </p>
+                    <div className="rounded-xl border bg-background divide-y">
+                      {(Array.isArray(place.hours)
+                        ? place.hours.map((h) => ({
+                            day: h.day,
+                            open: h.open,
+                            close: h.close,
+                          }))
+                        : Object.entries(place.hours).map(([day, times]) => ({
+                            day,
+                            open: times.open,
+                            close: times.close,
+                          }))
+                      ).map((hour, index) => (
+                        <div
+                          key={index}
+                          className="flex justify-between items-center px-4 py-3"
+                        >
+                          <span className="text-sm md:text-base font-medium">
+                            {hour.day}
+                          </span>
+                          <span className="text-xs md:text-sm text-muted-foreground">
+                            {hour.open} – {hour.close}
+                          </span>
+                        </div>
+                      ))}
                     </div>
-                  )}
-                </section>
-              )}
+                    {place.openNow !== undefined && (
+                      <div className="mt-3">
+                        <Badge
+                          variant={place.openNow ? "default" : "secondary"}
+                        >
+                          {place.openNow ? "Open now" : "Currently closed"}
+                        </Badge>
+                      </div>
+                    )}
+                  </section>
+                )}
 
               {/* Tags */}
               {place.tags && place.tags.length > 0 && (
@@ -574,6 +669,36 @@ const PlaceDetails = () => {
                 {selectedImageIndex + 1} / {allImages.length}
               </div>
             )}
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Login prompt dialog */}
+      <Dialog open={showLoginDialog} onOpenChange={setShowLoginDialog}>
+        <DialogContent className="sm:max-w-sm">
+          <DialogHeader>
+            <DialogTitle>Log in to save favorites</DialogTitle>
+            <DialogDescription>
+              You need to be logged in to add places to your favorites.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="flex gap-3 pt-2">
+            <Button
+              variant="outline"
+              className="flex-1"
+              onClick={() => setShowLoginDialog(false)}
+            >
+              Cancel
+            </Button>
+            <Button
+              className="flex-1"
+              onClick={() => {
+                setShowLoginDialog(false);
+                navigate("/login");
+              }}
+            >
+              Log in
+            </Button>
           </div>
         </DialogContent>
       </Dialog>

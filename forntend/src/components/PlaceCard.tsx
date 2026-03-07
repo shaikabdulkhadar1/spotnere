@@ -245,4 +245,27 @@ const PlaceCard = ({ place, onClick, isGuestFavorite = false }: PlaceCardProps) 
   );
 };
 
+export function PlaceCardSkeleton() {
+  return (
+    <div className="h-[26rem] w-full rounded-2xl bg-muted overflow-hidden animate-pulse">
+      {/* Image area */}
+      <div className="h-[60%] bg-muted-foreground/10" />
+      {/* Content area */}
+      <div className="p-4 flex flex-col gap-3">
+        <div className="flex items-center justify-between">
+          <div className="h-5 w-3/5 rounded bg-muted-foreground/10" />
+          <div className="h-4 w-12 rounded bg-muted-foreground/10" />
+        </div>
+        <div className="h-4 w-full rounded bg-muted-foreground/10" />
+        <div className="h-4 w-4/5 rounded bg-muted-foreground/10" />
+        <div className="flex gap-2 pt-1">
+          <div className="h-5 w-16 rounded-full bg-muted-foreground/10" />
+          <div className="h-5 w-20 rounded-full bg-muted-foreground/10" />
+        </div>
+        <div className="h-4 w-28 rounded bg-muted-foreground/10 mt-auto" />
+      </div>
+    </div>
+  );
+}
+
 export default PlaceCard;

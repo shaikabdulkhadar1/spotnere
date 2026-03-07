@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Search, Heart, Calendar, LogOut } from "lucide-react";
+import { Search, Heart, Calendar, LogOut, User } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/contexts/AuthContext";
 
@@ -140,6 +140,9 @@ const Navbar = () => {
               scrolled ? "z-10" : "",
             )}
           >
+            <button className="text-sm bg-background text-foreground hover:font-semibold border border-border rounded-full px-3 mx-2 py-1 h-[42px] shadow-sm transition-all duration-150 hover:shadow-md hover:-translate-y-[1px]">
+              List your place
+            </button>
             <button
               type="button"
               onClick={() => setIsProfileOpen((o) => !o)}
@@ -168,7 +171,8 @@ const Navbar = () => {
               <span className="flex h-7 w-7 items-center justify-center overflow-hidden rounded-full bg-primary text-xs font-semibold text-primary-foreground">
                 <span>
                   {isLoggedIn && user
-                    ? `${user.first_name?.[0] ?? ""}${user.last_name?.[0] ?? ""}`.toUpperCase() || user.email[0].toUpperCase()
+                    ? `${user.first_name?.[0] ?? ""}${user.last_name?.[0] ?? ""}`.toUpperCase() ||
+                      user.email[0].toUpperCase()
                     : "U"}
                 </span>
               </span>
@@ -241,7 +245,7 @@ const Navbar = () => {
                         className="flex items-center gap-3 w-full px-4 py-2.5 text-left hover:bg-muted active:scale-[0.99] transition-colors"
                       >
                         <Heart className="h-4 w-4 text-muted-foreground" />
-                        <span>Favorites</span>
+                        <span>Your Favorites</span>
                       </button>
                       <button
                         type="button"
@@ -253,6 +257,17 @@ const Navbar = () => {
                       >
                         <Calendar className="h-4 w-4 text-muted-foreground" />
                         <span>Your Bookings</span>
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          navigate("/profile");
+                          setIsProfileOpen(false);
+                        }}
+                        className="flex items-center gap-3 w-full px-4 py-2.5 text-left hover:bg-muted active:scale-[0.99] transition-colors"
+                      >
+                        <User className="h-4 w-4 text-muted-foreground" />
+                        <span>Manage Profile</span>
                       </button>
                       <div className="my-1 border-t border-border" />
                       <button

@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import SearchBar from "@/components/SearchBar";
-import PlaceCard from "@/components/PlaceCard";
+import PlaceCard, { PlaceCardSkeleton } from "@/components/PlaceCard";
 import { usePlaces, useSearchPlaces } from "@/hooks/use-places";
 import { ChevronDown, X } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -214,10 +214,7 @@ const Index = () => {
           {isLoading ? (
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-5">
               {Array.from({ length: 10 }).map((_, i) => (
-                <div
-                  key={i}
-                  className="h-[26rem] rounded-2xl bg-muted animate-pulse"
-                />
+                <PlaceCardSkeleton key={i} />
               ))}
             </div>
           ) : isError ? (
