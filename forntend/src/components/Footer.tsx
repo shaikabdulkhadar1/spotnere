@@ -19,6 +19,48 @@ const Footer = () => {
               Discover amazing places near you. From cozy cafés to hidden parks,
               we help you find the best spots for every moment.
             </p>
+
+            <p className="font-semibold mt-6 mb-3 text-foreground">
+              Get the App
+            </p>
+            <div className="flex flex-row gap-2">
+              <a
+                href="#"
+                className="inline-flex items-center gap-2.5 bg-black text-white rounded-lg px-4 py-2 hover:opacity-80 transition-opacity w-fit"
+              >
+                <img
+                  src="/svg/appstore.svg"
+                  alt="App Store"
+                  className="w-5 h-5"
+                />
+                <div className="flex flex-col leading-tight">
+                  <span className="text-[10px] font-light">
+                    Available on the
+                  </span>
+                  <span className="text-sm font-semibold -mt-0.5">
+                    App Store
+                  </span>
+                </div>
+              </a>
+              <a
+                href="#"
+                className="inline-flex items-center gap-2.5 bg-black text-white rounded-lg px-4 py-2 hover:opacity-80 transition-opacity w-fit"
+              >
+                <img
+                  src="/svg/googleplay.svg"
+                  alt="App Store"
+                  className="w-5 h-5"
+                />
+                <div className="flex flex-col leading-tight">
+                  <span className="text-[10px] font-light">
+                    Available on the
+                  </span>
+                  <span className="text-sm font-semibold -mt-0.5">
+                    Play Store
+                  </span>
+                </div>
+              </a>
+            </div>
           </div>
 
           <div>

@@ -31,11 +31,11 @@ export const FeatureCard = ({
         "bg-card text-card-foreground p-8 rounded-xl border flex flex-col items-center text-center",
         "transition-all duration-300 ease-in-out",
         "hover:shadow-lg hover:-translate-y-2",
-        className
+        className,
       )}
     >
       {/* Icon container */}
-      <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-muted text-primary">
+      <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-gray-200 text-primary">
         {icon}
       </div>
 

@@ -266,6 +266,45 @@ async def auth_me(user=Depends(get_current_user)):
     }
 
 
+class UpdateProfileRequest(BaseModel):
+    first_name: str | None = None
+    last_name: str | None = None
+    phone_number: str | None = None
+    address: str | None = None
+    city: str | None = None
+    state: str | None = None
+    country: str | None = None
+    postal_code: str | None = None
+
+
+@app.put("/api/auth/profile")
+async def update_profile(body: UpdateProfileRequest, user=Depends(get_current_user)):
+    """Update the currently authenticated user's profile fields."""
+    try:
+        updates = {k: v for k, v in body.model_dump().items() if v is not None}
+        if not updates:
+            raise HTTPException(status_code=400, detail="No fields to update")
+
+        response = (
+            supabase.table("users")
+            .update(updates)
+            .eq("id", user["id"])
+            .execute()
+        )
+
+        if not response.data:
+            raise HTTPException(status_code=404, detail="User not found")
+
+        return {
+            "success": True,
+            "user": _serialize_user(response.data[0]),
+        }
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Profile update failed: {str(e)}")
+
+
 # ── Favorites endpoints ──────────────────────────────────────────────────────
 
 class FavoriteToggleRequest(BaseModel):

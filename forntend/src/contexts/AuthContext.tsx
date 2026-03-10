@@ -20,6 +20,7 @@ interface AuthContextType {
   user: AuthUser | null;
   login: (token: string, user: AuthUser) => void;
   logout: () => void;
+  updateUser: (user: AuthUser) => void;
 }
 
 const TOKEN_KEY = "spotnere_token";
@@ -59,10 +60,15 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     localStorage.removeItem(USER_KEY);
   }, []);
 
+  const updateUser = useCallback((newUser: AuthUser) => {
+    setUser(newUser);
+    localStorage.setItem(USER_KEY, JSON.stringify(newUser));
+  }, []);
+
   const isLoggedIn = !!token;
 
   return (
-    <AuthContext.Provider value={{ isLoggedIn, token, user, login, logout }}>
+    <AuthContext.Provider value={{ isLoggedIn, token, user, login, logout, updateUser }}>
       {children}
     </AuthContext.Provider>
   );

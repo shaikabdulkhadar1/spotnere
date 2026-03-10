@@ -36,10 +36,18 @@ const Contact = () => {
   };
 
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen relative overflow-hidden hero-gradient-mesh">
+      {/* Animated orbs */}
+      <div className="hero-orb hero-orb-1" />
+      <div className="hero-orb hero-orb-2" />
+      <div className="hero-orb hero-orb-3" />
+
+      {/* Dot grid overlay */}
+      <div className="absolute inset-0 hero-dot-grid" />
+
       <Navbar />
 
-      <div className="pt-32 pb-12 px-4">
+      <div className="relative z-10 pt-32 pb-12 px-4">
         <div className="container mx-auto max-w-5xl">
           <div className="text-center mb-12 animate-fade-up">
             <h1 className="text-5xl md:text-6xl font-serif font-bold mb-6 text-foreground">
@@ -51,14 +59,14 @@ const Contact = () => {
             </p>
           </div>
 
-          <div className="grid md:grid-cols-2 gap-8">
+          <div className="grid md:grid-cols-2 gap-8 bg-background/50 backdrop-blur-sm rounded-3xl p-8">
             {/* Contact Form */}
             <GlassCard
               hover={false}
-              className="animate-fade-up"
+              className="animate-fade-up border-2 border-gray-200"
               style={{ animationDelay: "0.1s" }}
             >
-              <p className="text-2xl font-serif font-bold mb-6 text-foreground">
+              <p className="text-2xl font-parkinsans font-bold mb-6 text-foreground">
                 Send us a message
               </p>
 
@@ -140,11 +148,11 @@ const Contact = () => {
               className="space-y-6 animate-fade-up"
               style={{ animationDelay: "0.2s" }}
             >
-              <GlassCard className="group">
+              <GlassCard className="group border-2 border-gray-200">
                 <div className="w-12 h-12 bg-primary/10 rounded-xl flex items-center justify-center mb-4 transition-transform group-hover:scale-110">
                   <Mail className="w-6 h-6 text-primary" />
                 </div>
-                <p className="text-xl font-serif font-semibold mb-2 text-foreground">
+                <p className="text-xl font-parkinsans font-semibold mb-2 text-foreground">
                   Email
                 </p>
                 <p className="text-muted-foreground mb-2">
@@ -154,15 +162,15 @@ const Contact = () => {
                   href="mailto:Syedthbst7@gmail.com"
                   className="text-primary hover:underline"
                 >
-                  Syedthbst7@gmail.com
+                  spotnere@gmail.com
                 </a>
               </GlassCard>
 
-              <GlassCard className="group">
+              <GlassCard className="group border-2 border-gray-200">
                 <div className="w-12 h-12 bg-primary/10 rounded-xl flex items-center justify-center mb-4 transition-transform group-hover:scale-110">
                   <Phone className="w-6 h-6 text-primary" />
                 </div>
-                <p className="text-xl font-serif font-semibold mb-2 text-foreground">
+                <p className="text-xl font-parkinsans font-semibold mb-2 text-foreground">
                   Call Us
                 </p>
                 <p className="text-muted-foreground mb-2">
@@ -173,11 +181,11 @@ const Contact = () => {
                 </a>
               </GlassCard>
 
-              <GlassCard className="group">
+              <GlassCard className="group border-2 border-gray-200">
                 <div className="w-12 h-12 bg-primary/10 rounded-xl flex items-center justify-center mb-4 transition-transform group-hover:scale-110">
                   <MapPin className="w-6 h-6 text-primary" />
                 </div>
-                <p className="text-xl font-serif font-semibold mb-2 text-foreground">
+                <p className="text-xl font-parkinsans font-semibold mb-2 text-foreground">
                   Meet us at our office
                 </p>
                 <p className="text-muted-foreground mb-2">
@@ -188,8 +196,11 @@ const Contact = () => {
                 </a>
               </GlassCard>
 
-              <GlassCard hover={false} className="bg-primary/5">
-                <p className="text-xl font-serif font-semibold mb-3 text-foreground">
+              <GlassCard
+                hover={false}
+                className="bg-primary/5 border-2 border-primary/10"
+              >
+                <p className="text-xl font-parkinsans font-semibold mb-3 text-foreground">
                   Follow Us
                 </p>
                 <p className="text-muted-foreground mb-4">
