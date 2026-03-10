@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { usePlaceById, usePlaceGallery } from "@/hooks/use-places";
 import Navbar from "@/components/Navbar";
@@ -6,6 +6,7 @@ import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Calendar } from "@/components/ui/calendar";
 import {
   Star,
   Heart,
@@ -23,7 +24,16 @@ import {
   Ruler,
   ChevronLeft,
   ChevronRight,
+  ChevronUp,
+  ChevronDown,
   X,
+  CalendarDays,
+  Minus,
+  Plus,
+  CreditCard,
+  CheckCircle2,
+  XCircle,
+  AlertTriangle,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import {
@@ -35,16 +45,69 @@ import {
 } from "@/components/ui/dialog";
 import { useAuth } from "@/contexts/AuthContext";
 import { useFavorites } from "@/contexts/FavoritesContext";
+import { useToast } from "@/hooks/use-toast";
+import { bookingsApi } from "@/lib/api";
+import { format } from "date-fns";
+
+const TIME_SLOTS = [
+  "09:00 AM",
+  "10:00 AM",
+  "11:00 AM",
+  "12:00 PM",
+  "01:00 PM",
+  "02:00 PM",
+  "03:00 PM",
+  "04:00 PM",
+  "05:00 PM",
+  "06:00 PM",
+  "07:00 PM",
+  "08:00 PM",
+];
+
+function convertTo24h(time12h: string): string {
+  const [time, modifier] = time12h.split(" ");
+  let [hours, minutes] = time.split(":");
+  if (modifier === "PM" && hours !== "12") hours = String(+hours + 12);
+  if (modifier === "AM" && hours === "12") hours = "00";
+  return `${hours.padStart(2, "0")}:${minutes}`;
+}
+
+declare global {
+  interface Window {
+    Razorpay: any;
+  }
+}
 
 const PlaceDetails = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const { isLoggedIn } = useAuth();
+  const { isLoggedIn, token, user } = useAuth();
   const { isFavorite, toggleFavorite } = useFavorites();
+  const { toast } = useToast();
   const [showLoginDialog, setShowLoginDialog] = useState(false);
   const [bouncing, setBouncing] = useState(false);
   const [isImageModalOpen, setIsImageModalOpen] = useState(false);
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
+
+  // Booking modal state
+  const [bookingOpen, setBookingOpen] = useState(false);
+  const [selectedDate, setSelectedDate] = useState<Date | undefined>(undefined);
+  const [selectedSlot, setSelectedSlot] = useState<string>("");
+  const [guests, setGuests] = useState(1);
+  const [bookingLoading, setBookingLoading] = useState(false);
+  const [bookingResult, setBookingResult] = useState<any>(null);
+  const [showBreakdown, setShowBreakdown] = useState(false);
+  const [paymentStatus, setPaymentStatus] = useState<"idle" | "success" | "cancelled" | "failed">("idle");
+  const [paymentError, setPaymentError] = useState("");
+
+  useEffect(() => {
+    if (document.getElementById("razorpay-checkout-js")) return;
+    const script = document.createElement("script");
+    script.id = "razorpay-checkout-js";
+    script.src = "https://checkout.razorpay.com/v1/checkout.js";
+    script.async = true;
+    document.body.appendChild(script);
+  }, []);
 
   const liked = id ? isFavorite(id) : false;
 
@@ -59,6 +122,109 @@ const PlaceDetails = () => {
       setTimeout(() => setBouncing(false), 400);
     }
   };
+  const handleBookNowClick = () => {
+    if (!isLoggedIn) {
+      setShowLoginDialog(true);
+      return;
+    }
+    setSelectedDate(undefined);
+    setSelectedSlot("");
+    setGuests(1);
+    setBookingResult(null);
+    setPaymentStatus("idle");
+    setPaymentError("");
+    setBookingOpen(true);
+  };
+
+  const handleConfirmBooking = async () => {
+    if (!token || !id || !selectedDate || !selectedSlot) return;
+    setBookingLoading(true);
+    try {
+      const dateStr = format(selectedDate, "yyyy-MM-dd");
+      const booking_date_time = `${dateStr}T${convertTo24h(selectedSlot)}:00`;
+
+      const orderResult = await bookingsApi.createBooking(token, {
+        place_id: id,
+        booking_date_time,
+        number_of_guests: guests,
+      });
+
+      const { razorpay_order_id, razorpay_key_id, amount, amount_paid, booking_ref } = orderResult;
+
+      if (!window.Razorpay) {
+        throw new Error("Payment gateway failed to load. Please refresh and try again.");
+      }
+
+      // Close the booking dialog so it doesn't block the Razorpay iframe
+      setBookingOpen(false);
+
+      const options = {
+        key: razorpay_key_id,
+        amount,
+        currency: "INR",
+        name: "Spotnere",
+        description: `Booking at ${place?.name || ""}`,
+        order_id: razorpay_order_id,
+        prefill: {
+          name: user ? `${user.first_name} ${user.last_name}` : "",
+          email: user?.email || "",
+          contact: user?.phone_number || "",
+        },
+        theme: { color: "#f97316" },
+        handler: async (response: {
+          razorpay_payment_id: string;
+          razorpay_order_id: string;
+          razorpay_signature: string;
+        }) => {
+          try {
+            const verified = await bookingsApi.verifyPayment(token, {
+              place_id: id,
+              booking_date_time,
+              number_of_guests: guests,
+              booking_ref,
+              amount_paid,
+              razorpay_order_id: response.razorpay_order_id,
+              razorpay_payment_id: response.razorpay_payment_id,
+              razorpay_signature: response.razorpay_signature,
+            });
+            setBookingResult(verified.data);
+            setPaymentStatus("success");
+            setBookingOpen(true);
+          } catch (verifyErr: any) {
+            setPaymentStatus("failed");
+            setPaymentError(verifyErr.message || "Payment verification failed.");
+            setBookingOpen(true);
+          } finally {
+            setBookingLoading(false);
+          }
+        },
+        modal: {
+          ondismiss: () => {
+            setBookingLoading(false);
+            setPaymentStatus("cancelled");
+            setBookingOpen(true);
+          },
+        },
+      };
+
+      const rzp = new window.Razorpay(options);
+      rzp.on("payment.failed", (resp: any) => {
+        setBookingLoading(false);
+        setPaymentStatus("failed");
+        setPaymentError(resp.error?.description || "Something went wrong with your payment.");
+        setBookingOpen(true);
+      });
+      rzp.open();
+    } catch (err: any) {
+      setBookingLoading(false);
+      toast({
+        title: "Booking failed",
+        description: err.message,
+        variant: "destructive",
+      });
+    }
+  };
+
   const {
     data: place,
     isLoading: isPlaceLoading,
@@ -77,6 +243,60 @@ const PlaceDetails = () => {
   const isLoading = isPlaceLoading || isGalleryLoading;
   const isError = isPlaceError || isGalleryError;
   const error = placeError || galleryError;
+
+  const DAY_NAME_TO_INDEX: Record<string, number> = {
+    sunday: 0,
+    monday: 1,
+    tuesday: 2,
+    wednesday: 3,
+    thursday: 4,
+    friday: 5,
+    saturday: 6,
+    sun: 0,
+    mon: 1,
+    tue: 2,
+    wed: 3,
+    thu: 4,
+    fri: 5,
+    sat: 6,
+  };
+
+  const closedDayIndices = useMemo(() => {
+    if (!place?.hours) return new Set<number>();
+    const closed = new Set<number>();
+
+    const entries = Array.isArray(place.hours)
+      ? place.hours.map((h) => ({ day: h.day, open: h.open, close: h.close }))
+      : Object.entries(place.hours).map(([day, times]) => ({
+          day,
+          open: times.open,
+          close: times.close,
+        }));
+
+    const openDays = new Set<number>();
+    for (const entry of entries) {
+      const idx = DAY_NAME_TO_INDEX[entry.day.toLowerCase().trim()];
+      if (idx !== undefined) {
+        const isClosed =
+          entry.open.toLowerCase() === "closed" ||
+          entry.close.toLowerCase() === "closed" ||
+          (entry.open === "" && entry.close === "");
+        if (isClosed) {
+          closed.add(idx);
+        } else {
+          openDays.add(idx);
+        }
+      }
+    }
+
+    if (openDays.size > 0 && openDays.size < 7) {
+      for (let i = 0; i < 7; i++) {
+        if (!openDays.has(i)) closed.add(i);
+      }
+    }
+
+    return closed;
+  }, [place?.hours]);
 
   // Combine all images: banner first, then gallery images
   const allImages = place
@@ -143,7 +363,7 @@ const PlaceDetails = () => {
     if (!priceLevel) return null;
     const basePrices = { 1: 200, 2: 400, 3: 600 };
     const price = basePrices[priceLevel];
-    return `From $${price} for 2 nights`;
+    return `From ₹${price} for 2 nights`;
   };
 
   if (isLoading) {
@@ -294,7 +514,7 @@ const PlaceDetails = () => {
         <div className="container mx-auto max-w-6xl">
           {/* Top bar: back + bookmark */}
           <div className="flex items-center justify-between mb-6">
-            <span>  </span>
+            <span> </span>
             <div className="flex items-center gap-2">
               <Button
                 variant="outline"
@@ -445,7 +665,7 @@ const PlaceDetails = () => {
                 <div>
                   <p className="text-[10px] text-muted-foreground">Avg price</p>
                   <p className="text-xs md:text-sm font-semibold">
-                    {place.avgPrice ? `$${place.avgPrice}` : "N/A"}
+                    {place.avgPrice ? `₹${place.avgPrice}` : "N/A"}
                   </p>
                 </div>
               </div>
@@ -476,7 +696,7 @@ const PlaceDetails = () => {
                     {place.amenities.map((amenity, index) => (
                       <div
                         key={index}
-                        className="flex items-center gap-2 text-sm md:text-base"
+                        className="flex items-center border border-border rounded-full px-3 py-1.5 gap-2 text-sm md:text-base"
                       >
                         <div className="h-2 w-2 rounded-full bg-primary" />
                         <span>{amenity}</span>
@@ -609,8 +829,13 @@ const PlaceDetails = () => {
                       </div>
                     )}
                   </div>
-                  <Button className="w-full mt-4" size="lg">
-                    Send request
+                  <Button
+                    className="w-full mt-4"
+                    size="lg"
+                    onClick={handleBookNowClick}
+                  >
+                    <CalendarDays className="w-5 h-5 mr-2" />
+                    Book now
                   </Button>
                 </div>
               </div>
@@ -700,6 +925,304 @@ const PlaceDetails = () => {
               Log in
             </Button>
           </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Booking modal — single page */}
+      <Dialog
+        open={bookingOpen}
+        onOpenChange={(open) => {
+          if (!bookingLoading) setBookingOpen(open);
+        }}
+      >
+        <DialogContent className="sm:max-w-lg max-h-[90vh] overflow-y-auto p-0">
+          {paymentStatus === "idle" ? (
+            <>
+              <DialogHeader className="px-6 pt-6 pb-0">
+                <DialogTitle className="text-xl font-parkinsans font-semibold">
+                  Book {place?.name ?? "this place"}
+                </DialogTitle>
+                <DialogDescription>
+                  Select a date, time slot, and number of guests
+                </DialogDescription>
+              </DialogHeader>
+
+              <div className="px-6 pb-6 space-y-5 pt-3">
+                {/* Date picker */}
+                <div>
+                  <p className="text-sm font-medium text-foreground mb-2 flex items-center gap-1.5">
+                    <CalendarDays className="w-4 h-4 text-primary" /> Date
+                  </p>
+                  <Calendar
+                    mode="single"
+                    selected={selectedDate}
+                    onSelect={setSelectedDate}
+                    disabled={(date) =>
+                      date < new Date(new Date().setHours(0, 0, 0, 0)) ||
+                      closedDayIndices.has(date.getDay())
+                    }
+                    className="rounded-xl border w-full p-3"
+                    classNames={{
+                      months: "w-full",
+                      month: "w-full space-y-4",
+                      table: "w-full border-collapse",
+                      head_row: "flex w-full",
+                      head_cell:
+                        "text-muted-foreground rounded-md flex-1 font-normal text-[0.8rem] text-center",
+                      row: "flex w-full mt-2",
+                      cell: "flex-1 text-center text-sm p-0 relative focus-within:relative focus-within:z-20",
+                      day: "inline-flex items-center justify-center rounded-md text-sm font-normal ring-offset-background transition-colors hover:bg-muted hover:text-foreground w-full aspect-square p-0 aria-selected:opacity-100",
+                      day_today: "font-bold text-primary",
+                      day_selected:
+                        "bg-primary text-primary-foreground hover:bg-primary hover:text-primary-foreground focus:bg-primary focus:text-primary-foreground",
+                    }}
+                  />
+                </div>
+
+                {/* Time slots */}
+                <div>
+                  <p className="text-sm font-medium text-foreground mb-2 flex items-center gap-1.5">
+                    <Clock className="w-4 h-4 text-primary" /> Time Slot
+                  </p>
+                  <div className="grid grid-cols-4 gap-2">
+                    {TIME_SLOTS.map((slot) => (
+                      <button
+                        key={slot}
+                        onClick={() => setSelectedSlot(slot)}
+                        className={cn(
+                          "rounded-lg border px-2 py-2 text-xs font-medium transition-all",
+                          selectedSlot === slot
+                            ? "bg-primary text-primary-foreground border-primary shadow-md"
+                            : "bg-background hover:bg-muted border-border",
+                        )}
+                      >
+                        {slot}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Guests */}
+                <div>
+                  <p className="text-sm font-medium text-foreground mb-2 flex items-center gap-1.5">
+                    <Users className="w-4 h-4 text-primary" /> Guests
+                  </p>
+                  <div className="flex items-center gap-4">
+                    <button
+                      onClick={() => setGuests((g) => Math.max(1, g - 1))}
+                      disabled={guests <= 1}
+                      className="h-9 w-9 rounded-full border border-border flex items-center justify-center hover:bg-muted disabled:opacity-40 transition-colors"
+                    >
+                      <Minus className="w-4 h-4" />
+                    </button>
+                    <span className="text-xl font-bold w-8 text-center">
+                      {guests}
+                    </span>
+                    <button
+                      onClick={() => setGuests((g) => Math.min(20, g + 1))}
+                      disabled={guests >= 20}
+                      className="h-9 w-9 rounded-full border border-border flex items-center justify-center hover:bg-muted disabled:opacity-40 transition-colors"
+                    >
+                      <Plus className="w-4 h-4" />
+                    </button>
+                    <span className="text-sm text-muted-foreground">
+                      {guests === 1 ? "guest" : "guests"}
+                    </span>
+                  </div>
+                </div>
+
+                {/* Total */}
+                {place?.avgPrice &&
+                  selectedDate &&
+                  selectedSlot &&
+                  (() => {
+                    const perGuest = place.avgPrice!;
+                    const subtotal = perGuest * guests;
+                    const serviceFee = 0; //Math.round(subtotal * 0.05 * 100) / 100;
+                    const tax = 0; //Math.round(subtotal * 0.08 * 100) / 100;
+                    const total = subtotal + serviceFee + tax;
+                    return (
+                      <div className="rounded-xl border bg-muted/30 overflow-hidden">
+                        <button
+                          type="button"
+                          onClick={() => setShowBreakdown((v) => !v)}
+                          className="w-full px-4 py-3 flex items-center justify-between hover:bg-muted/50 transition-colors"
+                        >
+                          <span className="text-sm font-medium text-foreground">
+                            Total
+                          </span>
+                          <div className="flex items-center gap-1.5">
+                            <span className="text-lg font-bold text-foreground">
+                              ₹{total.toFixed(2)}
+                            </span>
+                            {showBreakdown ? (
+                              <ChevronUp className="w-4 h-4 text-muted-foreground" />
+                            ) : (
+                              <ChevronDown className="w-4 h-4 text-muted-foreground" />
+                            )}
+                          </div>
+                        </button>
+                        {showBreakdown && (
+                          <div className="border-t px-4 py-2.5 space-y-1.5 text-sm">
+                            <div className="flex justify-between">
+                              <span className="text-muted-foreground">
+                                ₹{perGuest.toFixed(2)} × {guests}{" "}
+                                {guests === 1 ? "guest" : "guests"}
+                              </span>
+                              <span className="text-foreground">
+                                ₹{subtotal.toFixed(2)}
+                              </span>
+                            </div>
+                            <div className="flex justify-between">
+                              <span className="text-muted-foreground">
+                                Service fee (0%)
+                              </span>
+                              <span className="text-foreground">
+                                ₹{serviceFee.toFixed(2)}
+                              </span>
+                            </div>
+                            <div className="flex justify-between">
+                              <span className="text-muted-foreground">
+                                Taxes (0%)
+                              </span>
+                              <span className="text-foreground">
+                                ₹{tax.toFixed(2)}
+                              </span>
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })()}
+
+                {/* Pay button */}
+                <Button
+                  className="w-full gap-2"
+                  size="lg"
+                  disabled={!selectedDate || !selectedSlot || bookingLoading}
+                  onClick={handleConfirmBooking}
+                >
+                  <CreditCard className="w-4 h-4" />
+                  {bookingLoading ? "Processing..." : "Pay & Book"}
+                </Button>
+              </div>
+            </>
+          ) : paymentStatus === "success" ? (
+            <div className="px-6 py-8 text-center bg-green-50/50 dark:bg-green-950/20 rounded-b-lg">
+              <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-green-100 dark:bg-green-900/30">
+                <CheckCircle2 className="w-8 h-8 text-green-600 dark:text-green-400" />
+              </div>
+              <p className="text-xl font-semibold text-green-700 dark:text-green-400 mb-1">
+                Booking Confirmed!
+              </p>
+              <p className="text-sm text-muted-foreground mb-5">
+                Your payment was successful. Here are your booking details.
+              </p>
+              <div className="rounded-xl border border-green-200 dark:border-green-800/50 text-sm divide-y divide-green-200 dark:divide-green-800/50 mb-5 text-left bg-white dark:bg-background">
+                <div className="flex justify-between px-4 py-2.5">
+                  <span className="text-muted-foreground">Reference</span>
+                  <span className="font-mono font-semibold text-foreground">
+                    {bookingResult?.booking_ref_number}
+                  </span>
+                </div>
+                <div className="flex justify-between px-4 py-2.5">
+                  <span className="text-muted-foreground">Date & Time</span>
+                  <span className="font-medium text-foreground">
+                    {selectedDate && format(selectedDate, "MMM d, yyyy")} ·{" "}
+                    {selectedSlot}
+                  </span>
+                </div>
+                <div className="flex justify-between px-4 py-2.5">
+                  <span className="text-muted-foreground">Guests</span>
+                  <span className="font-medium text-foreground">{guests}</span>
+                </div>
+                <div className="flex justify-between px-4 py-2.5">
+                  <span className="text-muted-foreground">Status</span>
+                  <Badge variant="default" className="bg-green-600 text-xs">
+                    Confirmed
+                  </Badge>
+                </div>
+              </div>
+              <div className="flex gap-3">
+                <Button
+                  variant="outline"
+                  className="flex-1"
+                  onClick={() => setBookingOpen(false)}
+                >
+                  Close
+                </Button>
+                <Button
+                  className="flex-1 bg-green-600 hover:bg-green-700"
+                  onClick={() => {
+                    setBookingOpen(false);
+                    navigate("/bookings");
+                  }}
+                >
+                  View Bookings
+                </Button>
+              </div>
+            </div>
+          ) : paymentStatus === "cancelled" ? (
+            <div className="px-6 py-8 text-center bg-orange-50/50 dark:bg-orange-950/20 rounded-b-lg">
+              <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-orange-100 dark:bg-orange-900/30">
+                <AlertTriangle className="w-8 h-8 text-orange-600 dark:text-orange-400" />
+              </div>
+              <p className="text-xl font-semibold text-orange-700 dark:text-orange-400 mb-1">
+                Payment Cancelled
+              </p>
+              <p className="text-sm text-muted-foreground mb-5">
+                You closed the payment window. No amount has been charged.
+              </p>
+              <div className="flex gap-3">
+                <Button
+                  variant="outline"
+                  className="flex-1"
+                  onClick={() => setBookingOpen(false)}
+                >
+                  Close
+                </Button>
+                <Button
+                  className="flex-1 bg-orange-600 hover:bg-orange-700"
+                  onClick={() => {
+                    setPaymentStatus("idle");
+                    setPaymentError("");
+                  }}
+                >
+                  Try Again
+                </Button>
+              </div>
+            </div>
+          ) : (
+            <div className="px-6 py-8 text-center bg-red-50/50 dark:bg-red-950/20 rounded-b-lg">
+              <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-red-100 dark:bg-red-900/30">
+                <XCircle className="w-8 h-8 text-red-600 dark:text-red-400" />
+              </div>
+              <p className="text-xl font-semibold text-red-700 dark:text-red-400 mb-1">
+                Payment Failed
+              </p>
+              <p className="text-sm text-muted-foreground mb-5">
+                {paymentError || "Something went wrong with your payment. Please try again."}
+              </p>
+              <div className="flex gap-3">
+                <Button
+                  variant="outline"
+                  className="flex-1"
+                  onClick={() => setBookingOpen(false)}
+                >
+                  Close
+                </Button>
+                <Button
+                  className="flex-1 bg-red-600 hover:bg-red-700"
+                  onClick={() => {
+                    setPaymentStatus("idle");
+                    setPaymentError("");
+                  }}
+                >
+                  Try Again
+                </Button>
+              </div>
+            </div>
+          )}
         </DialogContent>
       </Dialog>
     </div>

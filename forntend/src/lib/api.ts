@@ -468,6 +468,15 @@ export interface Booking {
   place: BookingPlace | null;
 }
 
+export interface CreateBookingResponse {
+  success: boolean;
+  razorpay_order_id: string;
+  razorpay_key_id: string;
+  amount: number;
+  amount_paid: number;
+  booking_ref: string;
+}
+
 export const bookingsApi = {
   async getBookings(token: string): Promise<{ data: Booking[]; count: number }> {
     const response = await fetch(`${API_BASE_URL}/api/bookings`, {
@@ -476,5 +485,48 @@ export const bookingsApi = {
     const data = await response.json();
     if (!response.ok) throw new Error(data.detail || "Failed to fetch bookings");
     return { data: data.data || [], count: data.count || 0 };
+  },
+
+  async createBooking(
+    token: string,
+    params: { place_id: string; booking_date_time: string; number_of_guests: number },
+  ): Promise<CreateBookingResponse> {
+    const response = await fetch(`${API_BASE_URL}/api/bookings`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify(params),
+    });
+    const data = await response.json();
+    if (!response.ok) throw new Error(data.detail || "Failed to create booking");
+    return data;
+  },
+
+  async verifyPayment(
+    token: string,
+    params: {
+      place_id: string;
+      booking_date_time: string;
+      number_of_guests: number;
+      booking_ref: string;
+      amount_paid: number;
+      razorpay_order_id: string;
+      razorpay_payment_id: string;
+      razorpay_signature: string;
+    },
+  ): Promise<{ success: boolean; data: Booking }> {
+    const response = await fetch(`${API_BASE_URL}/api/bookings/verify`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify(params),
+    });
+    const data = await response.json();
+    if (!response.ok) throw new Error(data.detail || "Payment verification failed");
+    return data;
   },
 };

@@ -5,7 +5,9 @@ from supabase import create_client, Client
 from dotenv import load_dotenv
 import os
 import hashlib
+import hmac
 import jwt
+import razorpay
 from datetime import datetime, timedelta, timezone
 
 # Load environment variables from .env file
@@ -46,6 +48,11 @@ def get_supabase_client() -> Client:
 
 # Initialize Supabase client
 supabase: Client = get_supabase_client()
+
+# Initialize Razorpay client
+RAZORPAY_KEY_ID = os.getenv("RAZORPAY_KEY_ID", "")
+RAZORPAY_KEY_SECRET = os.getenv("RAZORPAY_KEY_SECRET", "")
+razorpay_client = razorpay.Client(auth=(RAZORPAY_KEY_ID, RAZORPAY_KEY_SECRET))
 
 
 # ── Auth config ───────────────────────────────────────────────────────────────
@@ -385,6 +392,113 @@ async def toggle_favorite(body: FavoriteToggleRequest, user=Depends(get_current_
 
 
 # ── Bookings endpoints ────────────────────────────────────────────────────────
+
+class CreateBookingRequest(BaseModel):
+    place_id: str
+    booking_date_time: str
+    number_of_guests: int = 1
+
+
+@app.post("/api/bookings")
+async def create_booking(body: CreateBookingRequest, user=Depends(get_current_user)):
+    """Create a Razorpay order for the booking. No DB row yet — that happens after payment."""
+    import uuid
+
+    try:
+        place_resp = (
+            supabase.table("places")
+            .select("id, avg_price, name")
+            .eq("id", body.place_id)
+            .single()
+            .execute()
+        )
+        if not place_resp.data:
+            raise HTTPException(status_code=404, detail="Place not found")
+
+        avg_price = float(place_resp.data.get("avg_price") or 0)
+        amount = round(avg_price * body.number_of_guests, 2)
+        amount_paise = int(amount * 100)
+
+        booking_ref = f"SPT-{uuid.uuid4().hex[:8].upper()}"
+
+        razorpay_order = razorpay_client.order.create({
+            "amount": amount_paise,
+            "currency": "INR",
+            "receipt": booking_ref,
+            "notes": {
+                "place_id": body.place_id,
+                "user_id": user["id"],
+                "guests": body.number_of_guests,
+            },
+        })
+
+        return {
+            "success": True,
+            "razorpay_order_id": razorpay_order["id"],
+            "razorpay_key_id": RAZORPAY_KEY_ID,
+            "amount": amount_paise,
+            "amount_paid": amount,
+            "booking_ref": booking_ref,
+        }
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Booking failed: {str(e)}")
+
+
+class VerifyPaymentRequest(BaseModel):
+    place_id: str
+    booking_date_time: str
+    number_of_guests: int
+    booking_ref: str
+    amount_paid: float
+    razorpay_order_id: str
+    razorpay_payment_id: str
+    razorpay_signature: str
+
+
+@app.post("/api/bookings/verify")
+async def verify_booking_payment(body: VerifyPaymentRequest, user=Depends(get_current_user)):
+    """Verify Razorpay signature, then insert the booking row on success."""
+    try:
+        generated_signature = hmac.new(
+            RAZORPAY_KEY_SECRET.encode("utf-8"),
+            f"{body.razorpay_order_id}|{body.razorpay_payment_id}".encode("utf-8"),
+            hashlib.sha256,
+        ).hexdigest()
+
+        if not hmac.compare_digest(generated_signature, body.razorpay_signature):
+            raise HTTPException(status_code=400, detail="Invalid payment signature")
+
+        row = {
+            "user_id": user["id"],
+            "place_id": body.place_id,
+            "booking_date_time": body.booking_date_time,
+            "booking_ref_number": body.booking_ref,
+            "amount_paid": body.amount_paid,
+            "currency_paid": "INR",
+            "razorpay_order_id": body.razorpay_order_id,
+            "razorpay_payment_id": body.razorpay_payment_id,
+            "razorpay_signature": body.razorpay_signature,
+            "transaction_id": body.razorpay_payment_id,
+            "payment_status": "SUCCESS",
+            "payment_method": "razorpay",
+            "paid_at": datetime.now(timezone.utc).isoformat(),
+            "booking_status": "CONFIRMED",
+            "number_of_guests": body.number_of_guests,
+        }
+
+        response = supabase.table("bookings").insert(row).execute()
+
+        if not response.data:
+            raise HTTPException(status_code=500, detail="Failed to create booking")
+
+        return {"success": True, "data": response.data[0]}
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Payment verification failed: {str(e)}")
+
 
 @app.get("/api/bookings")
 async def get_bookings(user=Depends(get_current_user)):
