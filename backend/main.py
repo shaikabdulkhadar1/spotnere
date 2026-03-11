@@ -24,6 +24,8 @@ app = FastAPI(
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[
+        "https://www.spotnere.com",
+        "https://spotnere.com",
         "https://spotnere.vercel.app",
         "http://localhost:5173",
         "http://localhost:8080",
