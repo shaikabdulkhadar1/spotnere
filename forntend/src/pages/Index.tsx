@@ -6,6 +6,7 @@ import Footer from "@/components/Footer";
 import SearchBar from "@/components/SearchBar";
 import PlaceCard, { PlaceCardSkeleton } from "@/components/PlaceCard";
 import { usePlaces, useSearchPlaces } from "@/hooks/use-places";
+import { useGeolocation } from "@/contexts/GeolocationContext";
 import { ChevronDown, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { categories } from "@/lib/categories";
@@ -22,6 +23,7 @@ const CATEGORY_PILLS = [
 const Index = () => {
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
+  const { country: geoCountry, loading: geoLoading } = useGeolocation();
   const searchQuery = searchParams.get("q") || "";
   const activeCategory = searchParams.get("category") || "";
   const activeSubcategory = searchParams.get("subcategory") || "";
@@ -45,9 +47,10 @@ const Index = () => {
     error: allErr,
   } = usePlaces({
     limit: 100,
-    enabled: true,
+    enabled: !geoLoading,
     category: activeCategory || undefined,
     sub_category: activeSubcategory || undefined,
+    country: geoCountry || undefined,
   });
 
   const {
@@ -60,7 +63,7 @@ const Index = () => {
   const isSearching = searchQuery.length > 0;
   const isFiltering = !!activeCategory;
   const places = isSearching ? searchResults : allPlaces;
-  const isLoading = isSearching ? searchLoading : allLoading;
+  const isLoading = isSearching ? searchLoading : (geoLoading || allLoading);
   const isError = isSearching ? searchError : allError;
   const error = isSearching ? searchErr : allErr;
 
