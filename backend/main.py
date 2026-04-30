@@ -1,4 +1,5 @@
 from fastapi import FastAPI, HTTPException, Query, Depends, Header
+from fastapi.responses import Response
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, EmailStr
 from supabase import create_client, Client
@@ -742,6 +743,105 @@ async def health_check():
             "supabase": "disconnected",
             "error": str(e),
         }
+
+# ── Sitemap & Robots.txt ─────────────────────────────────────────────────────
+
+SITE_BASE_URL = os.getenv("SITE_BASE_URL", "https://www.spotnere.com")
+_sitemap_cache: dict = {"xml": None, "generated_at": None}
+SITEMAP_CACHE_TTL_SECONDS = 3600
+
+
+def _build_sitemap_xml() -> str:
+    """Generate sitemap XML with static pages and all visible place pages."""
+    now = datetime.now(timezone.utc).strftime("%Y-%m-%d")
+
+    static_pages = [
+        {"loc": "/", "changefreq": "daily", "priority": "1.0"},
+        {"loc": "/about", "changefreq": "monthly", "priority": "0.5"},
+        {"loc": "/contact", "changefreq": "monthly", "priority": "0.5"},
+    ]
+
+    urls = []
+    for page in static_pages:
+        urls.append(
+            f"  <url>\n"
+            f"    <loc>{SITE_BASE_URL}{page['loc']}</loc>\n"
+            f"    <lastmod>{now}</lastmod>\n"
+            f"    <changefreq>{page['changefreq']}</changefreq>\n"
+            f"    <priority>{page['priority']}</priority>\n"
+            f"  </url>"
+        )
+
+    try:
+        response = (
+            supabase.table("places")
+            .select("id, updated_at")
+            .eq("visible", True)
+            .execute()
+        )
+        places = response.data or []
+    except Exception:
+        places = []
+
+    for place in places:
+        lastmod = now
+        if place.get("updated_at"):
+            try:
+                lastmod = place["updated_at"][:10]
+            except (TypeError, IndexError):
+                pass
+        urls.append(
+            f"  <url>\n"
+            f"    <loc>{SITE_BASE_URL}/place/{place['id']}</loc>\n"
+            f"    <lastmod>{lastmod}</lastmod>\n"
+            f"    <changefreq>weekly</changefreq>\n"
+            f"    <priority>0.8</priority>\n"
+            f"  </url>"
+        )
+
+    xml = (
+        '<?xml version="1.0" encoding="UTF-8"?>\n'
+        '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n'
+        + "\n".join(urls) + "\n"
+        "</urlset>\n"
+    )
+    return xml
+
+
+@app.get("/sitemap.xml", include_in_schema=False)
+async def sitemap():
+    """Serve a dynamic XML sitemap. Cached for 1 hour."""
+    now = datetime.now(timezone.utc)
+    if (
+        _sitemap_cache["xml"] is None
+        or _sitemap_cache["generated_at"] is None
+        or (now - _sitemap_cache["generated_at"]).total_seconds() > SITEMAP_CACHE_TTL_SECONDS
+    ):
+        _sitemap_cache["xml"] = _build_sitemap_xml()
+        _sitemap_cache["generated_at"] = now
+
+    return Response(
+        content=_sitemap_cache["xml"],
+        media_type="application/xml",
+        headers={"Cache-Control": "public, max-age=3600"},
+    )
+
+
+@app.get("/robots.txt", include_in_schema=False)
+async def robots_txt():
+    """Serve robots.txt with sitemap reference."""
+    content = (
+        "User-agent: *\n"
+        "Allow: /\n"
+        "Disallow: /favorites\n"
+        "Disallow: /bookings\n"
+        "Disallow: /profile\n"
+        "Disallow: /login\n"
+        "\n"
+        f"Sitemap: {SITE_BASE_URL}/sitemap.xml\n"
+    )
+    return Response(content=content, media_type="text/plain")
+
 
 if __name__ == "__main__":
     import uvicorn
