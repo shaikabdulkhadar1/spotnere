@@ -1,6 +1,17 @@
 {
   "rewrites": [
     {
+      "source": "/place/:id",
+      "has": [
+        {
+          "type": "header",
+          "key": "user-agent",
+          "value": ".*(?:facebookexternalhit|Facebot|Twitterbot|LinkedInBot|WhatsApp|Slackbot|Discordbot|TelegramBot|Pinterest|Googlebot).*"
+        }
+      ],
+      "destination": "https://spotnere.onrender.com/og/place/:id"
+    },
+    {
       "source": "/sitemap.xml",
       "destination": "https://spotnere.onrender.com/sitemap.xml"
     }

@@ -744,6 +744,88 @@ async def health_check():
             "error": str(e),
         }
 
+# ── OpenGraph HTML for social crawlers ────────────────────────────────────────
+
+@app.get("/og/place/{place_id}", include_in_schema=False)
+async def og_place(place_id: str):
+    """Return a minimal HTML page with OpenGraph meta tags for a place.
+    This is served to social media crawlers via Vercel conditional rewrites."""
+    site_url = os.getenv("SITE_BASE_URL", "https://www.spotnere.com")
+
+    try:
+        response = (
+            supabase.table("places")
+            .select("id, name, description, banner_image_link, city, state, country, category, rating, avg_price")
+            .eq("id", place_id)
+            .eq("visible", True)
+            .single()
+            .execute()
+        )
+        place = response.data
+    except Exception:
+        place = None
+
+    if not place:
+        title = "Place not found — Spotnere"
+        description = "Discover amazing places near you with Spotnere."
+        image = f"{site_url}/logo.png"
+        url = site_url
+    else:
+        title = f"{place['name']} — Spotnere"
+
+        info_parts = []
+        if place.get("rating"):
+            info_parts.append(f"⭐ {place['rating']}")
+        if place.get("avg_price"):
+            info_parts.append(f"💰 ₹{place['avg_price']}")
+        location_parts = [place.get("city"), place.get("state")]
+        location = ", ".join(p for p in location_parts if p)
+        if location:
+            info_parts.append(f"📍 {location}")
+        info_line = " | ".join(info_parts)
+
+        desc_text = place.get("description") or ""
+        if not desc_text:
+            parts = [place.get("category"), place.get("city"), place.get("country")]
+            desc_text = "Discover " + ", ".join(p for p in parts if p) + " on Spotnere."
+
+        description = f"{info_line}\n{desc_text}" if info_line else desc_text
+        if len(description) > 200:
+            description = description[:197] + "..."
+
+        image = place.get("banner_image_link") or f"{site_url}/logo.png"
+        url = f"{site_url}/place/{place['id']}"
+
+    html = f"""<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <title>{title}</title>
+    <meta name="description" content="{description}" />
+
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="{title}" />
+    <meta property="og:description" content="{description}" />
+    <meta property="og:image" content="{image}" />
+    <meta property="og:url" content="{url}" />
+    <meta property="og:site_name" content="Spotnere" />
+
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:site" content="@spotnere" />
+    <meta name="twitter:title" content="{title}" />
+    <meta name="twitter:description" content="{description}" />
+    <meta name="twitter:image" content="{image}" />
+
+    <link rel="canonical" href="{url}" />
+</head>
+<body>
+    <p>{title}</p>
+</body>
+</html>"""
+
+    return Response(content=html, media_type="text/html")
+
+
 # ── Sitemap & Robots.txt ─────────────────────────────────────────────────────
 
 SITE_BASE_URL = os.getenv("SITE_BASE_URL", "https://www.spotnere.com")
