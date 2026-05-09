@@ -14,6 +14,10 @@
     {
       "source": "/sitemap.xml",
       "destination": "https://spotnere.onrender.com/sitemap.xml"
+    },
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
     }
   ]
 }
